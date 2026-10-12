@@ -1,0 +1,17 @@
+[Unit]
+Description=Monitor X account posts
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/x-monitor
+Environment=TWS_TELEMETRY=0
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/srv/x-monitor/.venv/bin/python /srv/x-monitor/monitor.py --targets-file config/targets.txt --interval 300
+Restart=always
+RestartSec=30
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

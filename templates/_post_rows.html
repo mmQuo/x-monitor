@@ -1,0 +1,16 @@
+{% for post in posts %}<tr data-post-id="{{ post.id }}">
+        <td class="date-cell">{{ post.get('created_at')|shorttime }}</td>
+        <td class="account-cell"><a href="{{ url_for('dashboard', account=post.account) }}">@{{ post.account }}</a></td>
+        <td class="category-cell">{% if post.ai %}<span class="category-tag">{{ post.ai.category }}</span>{% else %}<span class="pending-ai">待处理</span>{% endif %}</td>
+        <td class="text-cell">
+          {% if post.ai %}
+          <div class="ai-summary">{{ post.ai.summary|linkify(post.link_map) }}{% if post.visible_links %}<span class="source-links">{% for expanded in post.visible_links %}<a href="{{ expanded }}" target="_blank" rel="noopener noreferrer" title="{{ expanded }}">{{ expanded|link_label }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</span>{% endif %}</div>
+          <a class="mobile-post-link" href="https://x.com/{{ post.account }}/status/{{ post.id }}" target="_blank" rel="noopener noreferrer">X 原文 ↗</a>
+          <details class="translation-details"><summary><span class="expand-label">查看译文与原文</span><span class="collapse-label">收起</span></summary>
+            {% if post.ai.translation != post.get('text', '') %}<div class="translated-text"><strong>中文翻译</strong><p>{{ post.ai.translation|linkify(post.link_map) }}</p></div>{% endif %}
+            <div class="expanded-text"><strong>原文</strong><p>{{ post.get('text', '')|linkify(post.link_map) }}</p></div>
+          </details>
+          {% else %}<a class="mobile-post-link" href="https://x.com/{{ post.account }}/status/{{ post.id }}" target="_blank" rel="noopener noreferrer">X 原文 ↗</a><details><summary>{{ post.get('preview', '')|linkify(post.link_map) }}</summary><div class="expanded-text">{{ post.get('text', '')|linkify(post.link_map) }}</div></details>{% endif %}
+        </td>
+        <td><a class="post-link" href="https://x.com/{{ post.account }}/status/{{ post.id }}" target="_blank" rel="noopener noreferrer">原文</a></td>
+      </tr>{% else %}<tr><td colspan="5" class="empty">暂无符合条件的推文。</td></tr>{% endfor %}

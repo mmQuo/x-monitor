@@ -1,0 +1,3 @@
+# Monitored X usernames, one per line.
+tibo
+thsottiaux

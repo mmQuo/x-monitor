@@ -1,0 +1,24 @@
+[Unit]
+Description=X monitor web dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=xmonitorweb
+Group=xmonitorweb
+WorkingDirectory=/srv/x-monitor
+EnvironmentFile=/etc/x-monitor-web.env
+ExecStart=/srv/x-monitor/.venv/bin/python -m gunicorn --worker-class gthread --workers 2 --threads 16 --bind 127.0.0.1:8765 --access-logfile - web_app:app
+Restart=always
+RestartSec=5
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/x-monitor/config
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target

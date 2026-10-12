@@ -1,0 +1,18 @@
+[Unit]
+Description=Expand new X short links
+After=network-online.target x-monitor-monitor.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=xmonitorai
+Group=xmonitorweb
+WorkingDirectory=/srv/x-monitor
+ExecStart=/srv/x-monitor/.venv/bin/python /srv/x-monitor/link_backfill.py --concurrency 4
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/x-monitor/link_data
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX

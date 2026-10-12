@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 570" role="img" aria-labelledby="title description">
+  <title id="title">X 账号监控的数据流</title>
+  <desc id="description">监控账号由 twscrape 每五分钟检查一次，推文按账号保存为本地 JSONL。后台生成 AI 摘要、分类和译文，并缓存短链接的目标网址。网页汇总这些数据，实时显示推文并提供 CSV 和 JSONL 导出。</desc>
+  <defs>
+    <linearGradient id="canvas" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbfdfe"/>
+      <stop offset="1" stop-color="#f1f6f8"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-15%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="7" flood-color="#163b4b" flood-opacity="0.06"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#6297a4"/>
+    </marker>
+    <style>
+      text{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC","Microsoft YaHei",sans-serif}
+      .eyebrow{font-size:13px;font-weight:700;letter-spacing:1.4px;fill:#317684}
+      .title{font-size:29px;font-weight:700;fill:#173846}
+      .subtitle{font-size:15px;fill:#5d7580}
+      .stage{font-size:14px;font-weight:700;letter-spacing:.5px;fill:#5b7480}
+      .card{fill:#fff;stroke:#d9e4e9;stroke-width:1.5;filter:url(#shadow)}
+      .card-title{font-size:23px;font-weight:700;fill:#173846}
+      .body{font-size:15px;fill:#5a7280}
+      .small{font-size:13px;fill:#57717d}
+      .micro{font-size:12px;fill:#57717d}
+      .strong{font-size:14px;font-weight:700;fill:#224651}
+      .flow{fill:none;stroke:#6297a4;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+      .footer{font-size:14px;fill:#627d87}
+    </style>
+  </defs>
+
+  <rect width="1360" height="570" rx="18" fill="url(#canvas)"/>
+  <rect x="40" y="38" width="5" height="58" rx="2.5" fill="#258193"/>
+  <text x="61" y="52" class="eyebrow">X MONITOR · WORKFLOW</text>
+  <text x="61" y="86" class="title">账号监控的数据流</text>
+  <text x="61" y="109" class="subtitle">从账号检查到推文阅读，每一步都有对应的本地数据。</text>
+  <rect x="1134" y="45" width="186" height="35" rx="17.5" fill="#e5f2f5" stroke="#cae3e9"/>
+  <circle cx="1155" cy="62.5" r="5" fill="#2a8b9b"/>
+  <text x="1170" y="68" class="strong">每 5 分钟检查</text>
+  <path d="M40 125 H1320" stroke="#dce7eb"/>
+
+  <text x="40" y="149" class="stage">01  管理账号</text>
+  <text x="345" y="149" class="stage">02  定时采集</text>
+  <text x="650" y="149" class="stage">03  本地存储</text>
+  <text x="995" y="149" class="stage">04  阅读与导出</text>
+
+  <path class="flow" d="M305 255 H339"/>
+  <path class="flow" d="M610 255 H644"/>
+  <path class="flow" d="M915 255 H989"/>
+  <path class="flow" d="M782 350 V388"/>
+  <path class="flow" d="M915 453 H989"/>
+
+  <rect class="card" x="40" y="160" width="265" height="190" rx="15"/>
+  <rect x="40" y="160" width="265" height="5" rx="2.5" fill="#3b8795"/>
+  <circle cx="71" cy="196" r="15" fill="#e6f2f5"/>
+  <path d="M66 195 a5 5 0 1 1 10 0 a5 5 0 1 1 -10 0 M62 206 c2-5 16-5 18 0" fill="none" stroke="#287989" stroke-width="1.8" stroke-linecap="round"/>
+  <text x="63" y="238" class="card-title">监控账号</text>
+  <text x="63" y="263" class="body">网页增删、编辑监控名单</text>
+  <rect x="63" y="278" width="219" height="49" rx="8" fill="#f5f9fa" stroke="#e1eaee"/>
+  <text x="75" y="297" class="small">@tibo · @thsottiaux</text>
+  <text x="75" y="316" class="micro">config/targets.txt</text>
+
+  <rect class="card" x="345" y="160" width="265" height="190" rx="15"/>
+  <rect x="345" y="160" width="265" height="5" rx="2.5" fill="#4b96a3"/>
+  <circle cx="376" cy="196" r="15" fill="#e8f3f5"/>
+  <circle cx="376" cy="196" r="8" fill="none" stroke="#2f8190" stroke-width="1.8"/>
+  <path d="M376 191 v5 l4 2" fill="none" stroke="#2f8190" stroke-width="1.8" stroke-linecap="round"/>
+  <text x="368" y="238" class="card-title">twscrape 轮询</text>
+  <text x="368" y="263" class="body">检查动态并追加新推文</text>
+  <rect x="368" y="284" width="219" height="43" rx="8" fill="#f5f9fa" stroke="#e1eaee"/>
+  <text x="383" y="311" class="strong">05</text>
+  <text x="411" y="311" class="small">分钟 / 次</text>
+  <path d="M492 292 V319" stroke="#dde8ec"/>
+  <text x="509" y="311" class="small">X 帖子</text>
+
+  <rect class="card" x="650" y="160" width="265" height="190" rx="15"/>
+  <rect x="650" y="160" width="265" height="5" rx="2.5" fill="#618eac"/>
+  <circle cx="681" cy="196" r="15" fill="#eaf1f7"/>
+  <path d="M676 189 h8 l4 4 v10 h-12 z M684 189 v4 h4 M679 197 h6 M679 200 h6" fill="none" stroke="#567e9b" stroke-width="1.5" stroke-linejoin="round"/>
+  <text x="673" y="238" class="card-title">本地 JSONL</text>
+  <text x="673" y="263" class="body">每个账号保存一份帖子记录</text>
+  <rect x="673" y="284" width="219" height="43" rx="8" fill="#f5f8fb" stroke="#e1e8ee"/>
+  <rect x="684" y="295" width="40" height="21" rx="4" fill="#e7eef6"/>
+  <text x="692" y="310" class="micro">原文</text>
+  <rect x="730" y="295" width="40" height="21" rx="4" fill="#e7eef6"/>
+  <text x="738" y="310" class="micro">时间</text>
+  <rect x="776" y="295" width="40" height="21" rx="4" fill="#e7eef6"/>
+  <text x="784" y="310" class="micro">链接</text>
+  <path d="M832 300 h45 M832 307 h34 M832 314 h40" stroke="#a9c0ca" stroke-width="2" stroke-linecap="round"/>
+
+  <rect class="card" x="650" y="394" width="265" height="118" rx="15"/>
+  <text x="673" y="423" class="strong">后台处理</text>
+  <rect x="673" y="435" width="39" height="24" rx="5" fill="#e7f3ee"/>
+  <text x="683" y="452" class="micro">AI</text>
+  <text x="723" y="452" class="small">摘要 · 分类 · 译文</text>
+  <path d="M673 466 H892" stroke="#e8eef0"/>
+  <rect x="673" y="474" width="39" height="24" rx="5" fill="#eaf1f8"/>
+  <text x="678" y="491" class="micro">t.co</text>
+  <text x="723" y="491" class="small">展开并缓存目标网址</text>
+
+  <rect class="card" x="995" y="160" width="325" height="352" rx="15"/>
+  <rect x="995" y="160" width="325" height="5" rx="2.5" fill="#287e8e"/>
+  <circle cx="1026" cy="196" r="15" fill="#e6f2f5"/>
+  <rect x="1018" y="191" width="16" height="11" rx="2" fill="none" stroke="#287989" stroke-width="1.7"/>
+  <path d="M1018 194 h16" stroke="#287989" stroke-width="1.3"/>
+  <text x="1018" y="238" class="card-title">Web 监控台</text>
+  <text x="1018" y="263" class="body">筛选账号与分类，阅读摘要和译文</text>
+  <rect x="1018" y="280" width="279" height="123" rx="8" fill="#f8fafb" stroke="#dfe8ec"/>
+  <path d="M1018 311 H1297" stroke="#dfe8ec"/>
+  <rect x="1029" y="289" width="80" height="15" rx="4" fill="#e8f1f5"/>
+  <text x="1037" y="300" class="micro">全部账号</text>
+  <rect x="1116" y="289" width="80" height="15" rx="4" fill="#e8f1f5"/>
+  <text x="1124" y="300" class="micro">全部分类</text>
+  <rect x="1203" y="289" width="82" height="15" rx="4" fill="#fff" stroke="#dce7eb"/>
+  <text x="1214" y="300" class="micro">搜索推文</text>
+  <text x="1030" y="329" class="micro">10-07 08:18</text>
+  <rect x="1112" y="318" width="49" height="16" rx="3" fill="#e4f0f5"/>
+  <text x="1118" y="330" class="micro">AI 资讯</text>
+  <path d="M1172 323 H1279 M1172 330 H1248" stroke="#87aab6" stroke-width="2" stroke-linecap="round"/>
+  <path d="M1029 345 H1286" stroke="#e8eef0"/>
+  <text x="1030" y="364" class="micro">10-07 07:42</text>
+  <rect x="1112" y="353" width="49" height="16" rx="3" fill="#e4f0f5"/>
+  <text x="1118" y="365" class="micro">AI 资讯</text>
+  <path d="M1172 358 H1272 M1172 365 H1255" stroke="#87aab6" stroke-width="2" stroke-linecap="round"/>
+  <path d="M1029 381 H1285" stroke="#e8eef0"/>
+  <text x="1030" y="394" class="micro">原文 / 译文切换</text>
+  <text x="1018" y="433" class="strong">自动更新与按账号导出</text>
+  <circle cx="1025" cy="454" r="4" fill="#32a477"/>
+  <text x="1038" y="459" class="small">SSE 实时显示新内容</text>
+  <rect x="1018" y="473" width="104" height="26" rx="6" fill="#e6f2f5"/>
+  <text x="1048" y="491" class="strong">CSV</text>
+  <rect x="1131" y="473" width="104" height="26" rx="6" fill="#e6f2f5"/>
+  <text x="1162" y="491" class="strong">JSONL</text>
+
+  <circle cx="46" cy="544" r="4" fill="#5299a6"/>
+  <text x="61" y="549" class="footer">网页汇总本地帖子、AI 标注和链接缓存；导出按账号生成 CSV / JSONL。</text>
+</svg>

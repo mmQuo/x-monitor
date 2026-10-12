@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}登录 · X 监控台{% endblock %}
+{% block content %}
+<section class="login-wrap">
+  <div class="card login-card shadow-sm">
+    <h1>登录推文监控</h1>
+    <p class="muted">查看账号状态、最近推文和监控列表。</p>
+    {% for category, message in get_flashed_messages(with_categories=true) %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+    <form method="post" action="{{ url_for('login') }}" class="login-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="username">管理账号</label>
+      <input class="form-control" id="username" name="username" type="text" placeholder="输入管理账号" required autofocus autocomplete="username">
+      <label for="password">管理密码</label>
+      <input class="form-control" id="password" name="password" type="password" placeholder="输入管理密码" required autocomplete="current-password">
+      <button type="submit" class="btn btn-primary">登录</button>
+    </form>
+    <p class="login-note">请妥善保管登录信息。修改密码后，已有登录会话需退出再登录。</p>
+  </div>
+</section>
+{% endblock %}

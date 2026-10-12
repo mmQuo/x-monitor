@@ -1,0 +1,26 @@
+# Local environments and Python cache
+.venv/
+__pycache__/
+*.py[cod]
+
+# Credentials and machine-specific configuration
+.env
+.env.*
+*.env
+*.db
+*.sqlite*
+*.pem
+*.key
+*.crt
+*.p12
+config/targets.txt
+config/.targets.lock
+targets.txt
+
+# Runtime state and collected content
+*.jsonl
+*.baseline_at
+monitor_status.json
+ai_data/
+link_data/
+*.log

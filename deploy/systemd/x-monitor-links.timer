@@ -1,0 +1,11 @@
+[Unit]
+Description=Expand X short links every 10 minutes
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=10min
+Persistent=true
+Unit=x-monitor-links.service
+
+[Install]
+WantedBy=timers.target
