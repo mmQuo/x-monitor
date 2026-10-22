@@ -22,7 +22,7 @@
   {% if events %}
   <div class="report-lead">
     <h2>今日重点</h2>
-    <ol>{% for event in events %}<li><a href="#event-{{ loop.index }}">{{ event.title }}</a><span class="report-topic">{{ event.category }}</span></li>{% endfor %}</ol>
+    <ol>{% for event in events[:3] %}<li><a href="#event-{{ loop.index }}">{{ event.title }}</a><span class="report-topic">{{ event.category }}</span></li>{% endfor %}</ol>
   </div>
   <div class="report-event-list">
     {% for event in events %}
