@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}日报 · 推文监控{% endblock %}
+{% block header_status %}<span class="report-schedule">每天 08:00 生成前一天的日报 · 北京时间</span>{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='reports.js', v='1') }}" defer></script>{% endblock %}
+{% block content %}
+{% for category, message in get_flashed_messages(with_categories=true) %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+<div class="report-workspace" data-report-day="{{ day }}">
+  <section class="card panel report-panel" aria-labelledby="report-title">
+    <div class="report-toolbar">
+      <h1 id="report-title">每日简报</h1>
+      <form action="{{ url_for('reports.index') }}" method="get" class="report-date-form">
+        <label for="report-date" class="sr-only">日报日期</label>
+        <input class="form-control form-control-sm" type="date" id="report-date" name="date" value="{{ day }}" max="{{ today }}" required>
+        <button class="btn btn-outline-secondary btn-sm" type="submit">查看</button>
+      </form>
+      <span id="report-live-state" class="report-live-state">自动更新</span>
+    </div>
+    <div id="report-content">{% include "_daily_report.html" %}</div>
+  </section>
+  <aside class="card panel report-history-panel" aria-labelledby="report-history-title">
+    <div class="card-header section-heading"><h2 id="report-history-title">历史日报</h2><span>最近 30 期</span></div>
+    <div id="report-history">{% include "_report_history.html" %}</div>
+  </aside>
+</div>
+{% endblock %}

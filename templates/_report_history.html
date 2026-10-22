@@ -1,0 +1,5 @@
+{% for item in history %}
+<a class="report-history-item{% if item.day == day %} selected{% endif %}" href="{{ url_for('reports.index', date=item.day) }}"{% if item.day == day %} aria-current="page"{% endif %}>
+  <span>{{ item.day }}</span><span class="report-state {{ item.status }}">{{ {'complete':'已生成','queued':'排队中','running':'生成中','failed':'待重试'}[item.status] }}</span>
+</a>
+{% else %}<p class="report-history-empty">生成后可在这里查看往期日报。</p>{% endfor %}

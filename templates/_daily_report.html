@@ -1,0 +1,45 @@
+<div class="report-meta-row">
+  <div class="report-meta">
+    <strong>{{ day[5:] }}</strong>
+    {% if report %}<span>{{ report.post_count }} 条推文 · {{ events|length }} 个重点事件</span><span>生成于 {{ report.generated_at|reporttime }}</span>{% else %}<span>按推文发布时间汇总</span>{% endif %}
+  </div>
+  <div class="report-actions">
+    {% if edition %}<a href="{{ url_for('reports.export', day=day) }}" class="btn btn-link btn-sm">导出 Markdown</a>{% endif %}
+    <form method="post" action="{{ url_for('reports.generate') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="date" value="{{ day }}">
+      <button type="submit" class="btn btn-primary btn-sm"{% if running %} disabled{% endif %}>{% if running %}生成中…{% elif latest and latest.status == 'failed' %}继续重试{% elif edition %}重新生成{% else %}生成日报{% endif %}</button>
+    </form>
+  </div>
+</div>
+{% if running %}
+<div class="report-progress" role="status" aria-live="polite"><span class="report-dot"></span><span>{{ latest.stage }}{% if latest.total %} · {{ latest.done }} / {{ latest.total }}{% endif %}</span><span class="report-progress-note">可以离开页面，完成后自动保存</span></div>
+{% elif latest and latest.status == 'failed' %}
+<div class="report-error" role="alert">{{ latest.error }}。{% if edition %}下方显示上一份已完成的日报。{% else %}已完成的处理步骤会保留。{% endif %}</div>
+{% endif %}
+{% if edition %}
+  {% if partial_edition %}<div class="report-notice">本期内容截至 {{ edition.snapshot.captured_at|reporttime }}，可稍后重新生成。</div>{% endif %}
+  {% if events %}
+  <div class="report-lead">
+    <h2>今日重点</h2>
+    <ol>{% for event in events %}<li><a href="#event-{{ loop.index }}">{{ event.title }}</a><span class="report-topic">{{ event.category }}</span></li>{% endfor %}</ol>
+  </div>
+  <div class="report-event-list">
+    {% for event in events %}
+    <article class="report-event" id="event-{{ loop.index }}">
+      <div class="report-event-heading"><span class="report-event-number">{{ '%02d'|format(loop.index) }}</span><h2>{{ event.title }}</h2><span class="report-topic">{{ event.category }}</span>{% if event.status != '报道' %}<span class="report-evidence-status">{{ event.status }}</span>{% endif %}</div>
+      <p class="report-summary">{{ event.summary }}</p>
+      <p class="report-reason"><span>关注点</span>{{ event.reason }}</p>
+      <div class="report-timeline-label">进展 <span>按原帖发布时间</span></div>
+      <ul class="report-timeline">{% for entry in event.timeline %}<li><time>{{ entry.published_at|reporttime('%H:%M') }}</time><div>{{ entry.text }} <span class="report-citations">{% for source in entry.sources %}<a href="{{ source.url }}" target="_blank" rel="noopener noreferrer" title="@{{ source.username }}">[{{ source.number }}]</a>{% endfor %}</span></div></li>{% endfor %}</ul>
+      <details class="report-sources" data-details-id="sources-{{ loop.index }}"><summary><span class="expand-label">查看 {{ event.sources|length }} 条原帖</span><span class="collapse-label">收起原帖</span><span class="report-source-accounts">{% for source in event.sources %}@{{ source.username }}{% if not loop.last %} · {% endif %}{% endfor %}</span></summary><div class="report-source-list">
+        {% for source in event.sources %}<div class="report-source"><div><a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">[{{ source.number }}] @{{ source.username }} ↗</a><time>{{ source.created_at|reporttime }}</time></div><p>{{ source.text }}</p></div>{% endfor %}
+      </div></details>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}<div class="report-empty"><h2>{% if report.post_count %}本期没有可整理的重点事件{% else %}当天暂无已保存的推文{% endif %}</h2><p>选择其他日期查看日报。</p></div>{% endif %}
+  <details class="report-info" data-details-id="report-info"><summary>本期记录</summary><p>北京时间 {{ day }} 00:00–24:00 · {{ edition.snapshot.accounts|length }} 个监控账号 · 合并 {{ report.duplicate_count }} 条重复内容 · {{ report.candidate_count }} 个候选事件</p><p>{{ edition.model }} · {{ edition.calls }} 次模型调用 · 输入 {{ edition.input_tokens }} / 输出 {{ edition.output_tokens }} tokens</p></details>
+{% elif not running %}
+<div class="report-empty"><h2>这一天还没有日报</h2><p>点击“生成日报”，整理 {{ day }} 的重点事件和进展。</p></div>
+{% endif %}

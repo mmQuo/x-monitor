@@ -21,6 +21,7 @@ from werkzeug.security import check_password_hash
 
 from categories import CATEGORIES
 from link_utils import link_label, linkify, links_for_post
+from report_web import reports
 
 BASE = Path(__file__).resolve().parent
 TARGETS = BASE / "config" / "targets.txt"
@@ -31,6 +32,7 @@ LINK_CACHE = BASE / "link_data" / "links.json"
 HANDLE = re.compile(r"[A-Za-z0-9_]{1,15}\Z")
 
 app = Flask(__name__)
+app.register_blueprint(reports)
 app.json.ensure_ascii = False
 app.secret_key = os.environ.get("XMONITOR_WEB_SECRET", "")
 PASSWORD_HASH = os.environ.get("XMONITOR_WEB_PASSWORD_HASH", "")

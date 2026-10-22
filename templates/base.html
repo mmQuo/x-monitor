@@ -10,7 +10,8 @@
   <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/apple-touch-icon.png', v='1') }}">
   <title>{% block title %}X 监控台{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='13') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='14') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='reports.css', v='1') }}">
 </head>
 <body>
   <div class="container-fluid site-shell px-3 px-xl-4">
@@ -19,6 +20,8 @@
       <div class="header-status">{% block header_status %}{% endblock %}</div>
       {% if session.get('authenticated') %}
       <nav class="top-actions">
+        <a class="top-tab{% if request.endpoint == 'dashboard' %} active{% endif %}" href="{{ url_for('dashboard') }}"{% if request.endpoint == 'dashboard' %} aria-current="page"{% endif %}>推文</a>
+        <a class="top-tab{% if request.blueprint == 'reports' %} active{% endif %}" href="{{ url_for('reports.index') }}"{% if request.blueprint == 'reports' %} aria-current="page"{% endif %}>日报</a>
         <form action="{{ url_for('logout') }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-link btn-sm text-decoration-none" type="submit">退出登录</button></form>
       </nav>
       {% endif %}

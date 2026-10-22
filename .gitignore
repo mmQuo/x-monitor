@@ -23,4 +23,5 @@ targets.txt
 monitor_status.json
 ai_data/
 link_data/
+report_data/
 *.log

@@ -12,12 +12,12 @@ EnvironmentFile=/etc/x-monitor-web.env
 ExecStart=/srv/x-monitor/.venv/bin/python -m gunicorn --worker-class gthread --workers 2 --threads 16 --bind 127.0.0.1:8765 --access-logfile - web_app:app
 Restart=always
 RestartSec=5
-UMask=0027
+UMask=0007
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/srv/x-monitor/config
+ReadWritePaths=/srv/x-monitor/config /srv/x-monitor/report_data
 RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
 
 [Install]
