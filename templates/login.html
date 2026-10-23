@@ -1,20 +1,27 @@
 {% extends "base.html" %}
-{% block title %}登录 · X 监控台{% endblock %}
+{% block title %}登录 · 推文监控{% endblock %}
 {% block content %}
 <section class="login-wrap">
-  <div class="card login-card shadow-sm">
-    <h1>登录推文监控</h1>
-    <p class="muted">查看账号状态、最近推文和监控列表。</p>
-    {% for category, message in get_flashed_messages(with_categories=true) %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
-    <form method="post" action="{{ url_for('login') }}" class="login-form">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <label for="username">管理账号</label>
-      <input class="form-control" id="username" name="username" type="text" placeholder="输入管理账号" required autofocus autocomplete="username">
-      <label for="password">管理密码</label>
-      <input class="form-control" id="password" name="password" type="password" placeholder="输入管理密码" required autocomplete="current-password">
-      <button type="submit" class="btn btn-primary">登录</button>
-    </form>
-    <p class="login-note">请妥善保管登录信息。修改密码后，已有登录会话需退出再登录。</p>
+  <div class="login-layout">
+    <div class="login-story">
+      <a class="brand" href="{{ url_for('login') }}"><span class="brand-symbol"><img src="{{ url_for('static', filename='icons/brand-64.webp') }}" width="32" height="32" alt=""></span><span class="brand-copy">推文监控<small>X MONITOR</small></span></a>
+      <div class="login-story-visual" aria-hidden="true"></div>
+      <div class="login-statement"><p class="eyebrow">LESS NOISE. MORE SIGNAL.</p><h2>让信息汇聚，<br><span>让重点浮现。</span></h2><p>连接你关注的声音，发现值得阅读的动态。<br>你的专属资讯工作台，从这里开始。</p>
+        <div class="login-feature-list"><span>{{ icon('pulse', 13) }}账号追踪</span><span>{{ icon('sparkles', 13) }}智能摘要</span><span>{{ icon('document', 13) }}每日简报</span></div>
+      </div>
+      <p class="login-story-caption">A QUIETER WAY TO STAY INFORMED</p>
+    </div>
+    <div class="login-card">
+      <p class="eyebrow">WELCOME BACK</p><h1>欢迎回来</h1><p class="muted">登录工作台，继续发现重要的信息。</p>
+      {% for category, message in get_flashed_messages(with_categories=true) %}<div class="flash {{ category }}" role="alert">{{ message }}</div>{% endfor %}
+      <form method="post" action="{{ url_for('login') }}" class="login-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="username">管理账号</label><input class="form-control" id="username" name="username" type="text" placeholder="输入管理账号" required autofocus autocomplete="username">
+        <label for="password">登录密码</label><input class="form-control" id="password" name="password" type="password" placeholder="输入登录密码" required autocomplete="current-password">
+        <button type="submit" class="btn btn-primary">进入工作台 {{ icon('arrow', 17) }}</button>
+      </form>
+      <p class="login-note">{{ icon('shield', 14) }}私人工作空间 · 仅限授权用户访问</p>
+    </div>
   </div>
 </section>
 {% endblock %}

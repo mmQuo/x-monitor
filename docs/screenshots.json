@@ -1,0 +1,67 @@
+{
+  "captured_at": "2026-10-23T21:44:51+08:00",
+  "timezone": "Asia/Shanghai",
+  "source": "Saved public X posts and existing AI annotations/reports; no content edits",
+  "report_date": "2026-10-22",
+  "screenshots": [
+    {
+      "file": "dashboard-desktop.png",
+      "route": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "rendered_items": 100,
+      "fully_visible_feed_rows": 11
+    },
+    {
+      "file": "web3-desktop.png",
+      "route": "/?category=%E9%93%BE%E4%B8%8A%E8%B5%84%E9%87%91",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "rendered_items": 100,
+      "fully_visible_feed_rows": 11
+    },
+    {
+      "file": "macro-desktop.png",
+      "route": "/?category=%E5%AE%8F%E8%A7%82%E4%B8%8E%E5%9C%B0%E7%BC%98",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "rendered_items": 100,
+      "fully_visible_feed_rows": 11
+    },
+    {
+      "file": "daily-desktop.png",
+      "route": "/reports?date=2026-10-22",
+      "viewport": {
+        "width": 1440,
+        "height": 1100
+      },
+      "rendered_items": 10
+    },
+    {
+      "file": "dashboard-mobile.png",
+      "route": "/",
+      "viewport": {
+        "width": 390,
+        "height": 1000
+      },
+      "rendered_items": 100,
+      "fully_visible_feed_rows": 6
+    },
+    {
+      "file": "daily-mobile.png",
+      "route": "/reports?date=2026-10-22",
+      "viewport": {
+        "width": 390,
+        "height": 1100
+      },
+      "rendered_items": 10
+    }
+  ],
+  "browser": "Chromium 138.0.7204.15"
+}

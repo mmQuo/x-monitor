@@ -1,45 +1,42 @@
 {% extends "base.html" %}
-{% block title %}概览 · 推文监控{% endblock %}
-{% block header_status %}
-<div class="status-strip">
-  <span><b>{{ accounts|length }}</b> 个账号</span>
-  <span><b id="total-posts">{{ total_posts }}</b> 条推文</span>
-  <span>今日 <b id="today-posts">{{ today_posts }}</b></span>
-  <span>每 5 分钟检查</span>
-  <span class="status-time">上次 <time id="last-checked">{{ last_checked|localtime }}</time></span>
-  <span id="live-state" class="live-state">连接中</span>
-  <a href="{{ url_for('dashboard') }}">刷新</a>
-</div>
-{% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='filters.js', v='7') }}" defer></script>{% endblock %}
+{% block title %}资讯总览 · 推文监控{% endblock %}
+{% block header_status %}<span class="header-cadence">{{ icon('clock', 15) }}每 5 分钟检查</span><a class="btn btn-outline-secondary header-action" href="{{ url_for('reports.index') }}">{{ icon('document', 15) }}每日简报</a><span id="live-state" class="live-state">连接中</span>{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='filters.js', v='9') }}" defer></script>{% endblock %}
 {% block content %}
-{% for category, message in get_flashed_messages(with_categories=true) %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+{% for category, message in get_flashed_messages(with_categories=true) %}<div class="flash {{ category }}" role="status">{{ message }}</div>{% endfor %}
+<section class="metrics-grid" aria-label="监控概况">
+  <a class="metric-card" href="#accounts-title" title="管理当前监控账号"><span class="metric-label">{{ icon('users', 16) }}监控账号</span><span class="metric-value">{{ accounts|length }}<small>个</small></span></a>
+  <div class="metric-card metric-featured" title="按发布时间统计，跟随当前账号筛选"><span class="metric-label">{{ icon('pulse', 16) }}今日推文</span><span class="metric-value"><span id="today-posts">{{ '{:,}'.format(today_posts) }}</span><small>条</small></span></div>
+  <div class="metric-card" title="当前监控账号的已保存推文"><span class="metric-label">{{ icon('archive', 16) }}累计收录</span><span class="metric-value"><span id="total-posts">{{ '{:,}'.format(total_posts) }}</span><small>条</small></span></div>
+  <div class="metric-card" title="已完成摘要、分类与中文翻译的推文"><span class="metric-label">{{ icon('sparkles', 16) }}AI 已整理</span><span class="metric-value"><span id="ai-count">{{ '{:,}'.format(ai_count) }}</span><small>条</small></span></div>
+</section>
 <div class="workspace-grid">
-  <section class="card panel feed-panel" aria-labelledby="feed-title">
-    <div class="card-header section-heading feed-heading"><h2 id="feed-title">推文记录</h2><span class="feed-stats"><span class="ai-stats">AI 已处理 <span id="ai-count">{{ ai_count }}</span> 条 · </span>当前显示 <span id="visible-count">{{ posts|length }}</span> 条</span><a class="mobile-manage-link" href="#accounts-title">管理账号</a></div>
+  <section class="panel feed-panel" aria-labelledby="feed-title">
+    <div class="section-heading feed-heading"><h2 id="feed-title">最新动态 <span class="count-badge" id="visible-count">{{ posts|length }}</span></h2><span class="feed-order">按发布时间排序</span><a class="icon-button" id="feed-refresh" href="{{ url_for('dashboard', account=selected, category=category, q=query) }}" aria-label="刷新当前推文列表" title="刷新当前推文列表">{{ icon('refresh', 17) }}</a></div>
     <form class="filters" action="{{ url_for('dashboard') }}" method="get">
-      <label class="sr-only" for="account-filter">按账号筛选</label>
-      <select class="form-select form-select-sm" id="account-filter" name="account" aria-label="按账号筛选"><option value="">全部账号</option>{% for account in accounts %}<option value="{{ account.name }}" {% if selected == account.name|lower %}selected{% endif %}>@{{ account.name }}</option>{% endfor %}</select>
+      <div class="search-field">{{ icon('search', 17) }}<label class="sr-only" for="search">搜索推文、摘要或翻译</label><input class="form-control" id="search" name="q" value="{{ query }}" placeholder="搜索推文、摘要或翻译…" maxlength="100"></div>
+      <label class="sr-only" for="account-filter">按账号筛选</label><select class="form-select" id="account-filter" name="account"><option value="">全部账号</option>{% for account in accounts %}<option value="{{ account.name }}" {% if selected == account.name|lower %}selected{% endif %}>@{{ account.name }}</option>{% endfor %}</select>
       <label class="sr-only" for="category-filter">按分类筛选</label>
-      <select class="form-select form-select-sm" id="category-filter" name="category" aria-label="按分类筛选"><option value="">全部分类</option>{% for item in categories %}<option value="{{ item }}" {% if category == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select>
-      <label class="sr-only" for="search">搜索推文</label><input class="form-control form-control-sm" id="search" name="q" value="{{ query }}" placeholder="搜索内容" maxlength="100">
-      <button class="btn btn-outline-secondary btn-sm" type="submit">筛选</button>
+      <select class="form-select" id="category-filter" name="category">
+        <option value="">全部分类</option>
+        <option value="{{ macro_group }}" {% if category == macro_group %}selected{% endif %}>{{ macro_group }}</option>
+        <optgroup label="宏观与地缘细分">{% for item in macro_categories %}<option value="{{ item }}" {% if category == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</optgroup>
+        <optgroup label="其他分类">{% for item in categories if item != macro_group and item not in macro_categories %}<option value="{{ item }}" {% if category == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</optgroup>
+      </select>
+      <button class="btn btn-filter" type="submit" aria-label="应用筛选" title="应用筛选">{{ icon('sliders', 16) }}<span>筛选</span></button>
     </form>
-    <div class="table-wrap"><table class="table table-sm table-hover mb-0 posts-table">
-      <thead><tr><th>发布时间</th><th>账号</th><th>分类</th><th>摘要 / 内容</th><th>原文</th></tr></thead>
-      <tbody id="post-rows">{% include "_post_rows.html" %}</tbody>
-    </table></div>
+    <div class="table-wrap"><table class="posts-table"><thead><tr><th scope="col">来源 / 时间</th><th scope="col">AI 摘要 / 动态</th><th scope="col"><span class="sr-only">原文链接</span></th></tr></thead><tbody id="post-rows">{% include "_post_rows.html" %}</tbody></table></div>
+    <div class="feed-footer"><span>展示最近的匹配记录</span><span>完整历史可在账号列表导出 {{ icon('download', 13) }}</span></div>
   </section>
   <aside class="sidebar">
-    <section class="card panel accounts-panel" aria-labelledby="accounts-title">
-      <div class="card-header section-heading"><h2 id="accounts-title">监控账号</h2><span>{{ accounts|length }} 个</span><a class="mobile-back-link" href="#feed-title">返回推文</a></div>
-      <form class="add-form" method="post" action="{{ url_for('create_target') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label class="sr-only" for="new-username">X 用户名</label><input class="form-control form-control-sm" id="new-username" name="username" placeholder="X 用户名" maxlength="16" required autocomplete="off"><button class="btn btn-primary btn-sm" type="submit">添加</button></form>
+    <section class="panel activity-panel" aria-labelledby="activity-title"><div class="section-heading"><h2 id="activity-title">近 7 天发文</h2><span class="subtle-icon">{{ icon('chart', 19) }}</span></div><div id="activity-chart">{% include "_activity_chart.html" %}</div><div class="chart-caption"><span class="mini-dot"></span>按发布时间 · 跟随账号筛选</div></section>
+    <section class="panel accounts-panel" aria-labelledby="accounts-title">
+      <div class="section-heading"><h2 id="accounts-title">监控账号 <span class="count-badge">{{ accounts|length }}</span></h2><a class="mobile-back-link" href="#feed-title">返回动态 {{ icon('arrow', 13) }}</a><span class="accounts-heading-icon">{{ icon('users', 19) }}</span></div>
+      <form class="add-form" method="post" action="{{ url_for('create_target') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="account-input"><span aria-hidden="true">@</span><label class="sr-only" for="new-username">添加 X 用户名</label><input class="form-control" id="new-username" name="username" placeholder="添加 X 用户名" maxlength="16" required autocomplete="off"></div><button class="btn btn-primary" type="submit" aria-label="添加监控账号" title="添加监控账号">{{ icon('plus', 19) }}</button></form>
       <div class="account-list" id="account-list">{% include "_account_rows.html" %}</div>
+      <div class="accounts-footnote">新账号将在下一轮检查时开始采集</div>
     </section>
-    <section class="card panel activity-panel" aria-labelledby="activity-title">
-      <div class="card-header section-heading"><h2 id="activity-title">近 7 天发文</h2><span>按发布时间</span></div>
-      <div id="activity-chart">{% include "_activity_chart.html" %}</div>
-    </section>
+    <div class="sync-note">{{ icon('clock', 15) }}<span>最近检查<time id="last-checked">{{ last_checked|localtime }}</time></span></div>
   </aside>
 </div>
 {% endblock %}

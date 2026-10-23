@@ -1,33 +1,54 @@
+{% from '_icons.html' import icon %}
 <!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#183c34">
   <link rel="icon" href="{{ url_for('static', filename='favicon.ico', v='1') }}" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/favicon-32.png', v='1') }}">
-  <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='icons/icon-192.png', v='1') }}">
-  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/apple-touch-icon.png', v='1') }}">
-  <title>{% block title %}X 监控台{% endblock %}</title>
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png', v='1') }}">
+  <title>{% block title %}推文监控{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='14') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='reports.css', v='1') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='24') }}">
+  {% if request.blueprint == 'reports' %}<link rel="stylesheet" href="{{ url_for('static', filename='reports.css', v='6') }}">{% endif %}
 </head>
-<body>
-  <div class="container-fluid site-shell px-3 px-xl-4">
+<body class="{% if session.get('authenticated') %}workspace{% else %}auth-page{% endif %}">
+  <a class="skip-link" href="#main-content">跳转到主要内容</a>
+  {% if session.get('authenticated') %}
+  <aside class="app-sidebar" aria-label="工作台导航">
+    <a class="brand" href="{{ url_for('dashboard') }}">
+      <span class="brand-symbol"><img src="{{ url_for('static', filename='icons/brand-64.webp') }}" width="32" height="32" alt=""></span>
+      <span class="brand-copy">推文监控<small>X MONITOR</small></span>
+    </a>
+    <div class="nav-label">工作空间 <span>WORKSPACE</span></div>
+    <nav class="main-nav">
+      <a class="nav-item{% if request.endpoint == 'dashboard' %} active{% endif %}" href="{{ url_for('dashboard') }}"{% if request.endpoint == 'dashboard' %} aria-current="page"{% endif %}>{{ icon('grid') }}<span>资讯总览</span>{{ icon('chevron', 14) }}</a>
+      <a class="nav-item{% if request.blueprint == 'reports' %} active{% endif %}" href="{{ url_for('reports.index') }}"{% if request.blueprint == 'reports' %} aria-current="page"{% endif %}>{{ icon('document') }}<span>每日简报</span>{{ icon('chevron', 14) }}</a>
+      <a class="nav-item" href="{{ url_for('dashboard') }}#accounts-title">{{ icon('users') }}<span>监控账号</span>{{ icon('chevron', 14) }}</a>
+    </nav>
+    <div class="sidebar-note">
+      <span class="sidebar-note-icon">{{ icon('sparkles', 22) }}</span>
+      <strong>让信息，变成洞察。</strong>
+      <p>关注重要账号，读懂最新动态。<br>从每条推文到每日重点。</p>
+      <a href="{{ url_for('reports.index') }}">阅读每日简报 {{ icon('arrow', 16) }}</a>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="workspace-owner"><span class="owner-avatar">M</span><span>我的工作台<small>账号监控与资讯整理</small></span></div>
+      <form action="{{ url_for('logout') }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="logout-button" type="submit">{{ icon('logout', 17) }}退出登录</button></form>
+    </div>
+  </aside>
+  {% endif %}
+  <div class="site-shell">
+    {% if session.get('authenticated') %}
     <header class="topbar">
-      <a class="brand" href="{{ url_for('dashboard') }}"><img class="brand-mark" src="{{ url_for('static', filename='icons/brand-64.webp', v='1') }}" width="25" height="25" alt=""><span>推文监控</span></a>
+      <div class="breadcrumb-line"><span>工作空间</span>{{ icon('chevron', 12) }}<h1>{% block breadcrumb %}资讯总览{% endblock %}</h1></div>
       <div class="header-status">{% block header_status %}{% endblock %}</div>
-      {% if session.get('authenticated') %}
-      <nav class="top-actions">
-        <a class="top-tab{% if request.endpoint == 'dashboard' %} active{% endif %}" href="{{ url_for('dashboard') }}"{% if request.endpoint == 'dashboard' %} aria-current="page"{% endif %}>推文</a>
-        <a class="top-tab{% if request.blueprint == 'reports' %} active{% endif %}" href="{{ url_for('reports.index') }}"{% if request.blueprint == 'reports' %} aria-current="page"{% endif %}>日报</a>
-        <form action="{{ url_for('logout') }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-link btn-sm text-decoration-none" type="submit">退出登录</button></form>
-      </nav>
-      {% endif %}
     </header>
-    <main>{% block content %}{% endblock %}</main>
-    <footer>数据来自 twscrape · 监控账号在下一轮检查时更新</footer>
+    {% endif %}
+    <main id="main-content">{% block content %}{% endblock %}</main>
+    <footer class="site-footer"><span>推文监控 <span class="footer-divider">/</span> 让重要的信息浮出水面</span><span>内容来自 X · AI 辅助整理</span></footer>
   </div>
   {% block scripts %}{% endblock %}
 </body>

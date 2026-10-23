@@ -19,9 +19,9 @@ from pathlib import Path
 from flask import Flask, Response, abort, flash, jsonify, redirect, render_template, request, send_file, session, stream_with_context, url_for
 from werkzeug.security import check_password_hash
 
-from categories import CATEGORIES
 from link_utils import link_label, linkify, links_for_post
 from report_web import reports
+from categories import CATEGORY_FILTERS, MACRO_CATEGORIES, MACRO_GROUP, matches_category
 
 BASE = Path(__file__).resolve().parent
 TARGETS = BASE / "config" / "targets.txt"
@@ -311,7 +311,7 @@ def dashboard():
     selected = request.args.get("account", "").lower()
     query = request.args.get("q", "").strip().lower()[:100]
     category = request.args.get("category", "")
-    categories = CATEGORIES
+    categories = CATEGORY_FILTERS
     if category not in categories:
         category = ""
     accounts = []
@@ -328,7 +328,7 @@ def dashboard():
             daily[day] = daily.get(day, 0) + amount
         for post in recent:
             ai = annotations.get(str(post["id"]))
-            if category and (not ai or ai.get("category") != category):
+            if not matches_category(category, (ai or {}).get("category")):
                 continue
             post["link_map"] = links_for_post(post, link_cache)
             post["visible_links"] = list(post["link_map"].values())[:1]
@@ -367,6 +367,7 @@ def dashboard():
         query=request.args.get("q", "")[:100], total_posts=sum(x["count"] for x in accounts),
         chart=chart, today_posts=daily.get(today.isoformat(), 0), last_checked=last_checked,
         categories=categories, category=category, ai_count=len(annotations),
+        macro_group=MACRO_GROUP, macro_categories=MACRO_CATEGORIES,
     )
 
 

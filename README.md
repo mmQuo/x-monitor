@@ -1,114 +1,115 @@
-# X 账号监控台
+# X Monitor · 推文监控台
 
-Poll X accounts with `twscrape`. The first successful check for each account saves a baseline; later checks print new posts and append them to a per-account JSONL file. Reposts are excluded. Existing post IDs are loaded from the JSONL files when the process restarts. The Flask dashboard provides account management, search, AI summaries and translations, live updates, and full CSV/JSONL exports.
+把关注的 X 账号整理成一个中文资讯工作台：定时采集原帖，生成摘要、翻译与分类，再将一天的内容汇总为带来源的每日简报。适合同时跟踪 **AI、Web3、宏观与地缘政治**。
 
-## 工作流
+基于 Python、Flask / Jinja、twscrape 和兼容 Chat Completions 的模型接口。数据保存在本地 JSONL 与 SQLite，前端使用原生 JavaScript 和本地 Bootstrap 样式，无需前端构建服务。
 
-![从账号轮询到本地保存、AI 处理、短链接展开、网页查看与导出的工作流](docs/workflow.svg)
+## 页面预览
 
-网页展示已保存的推文；按账号导出完整 CSV 或 JSONL。
+以下为 **2026-10-23 从实际保存的数据渲染的页面**，包含公开 X 帖子及已有 AI 整理结果。日报展示 2026-10-22 的存档；截图反映当时的应用内容，不代表实时行情或独立核验的新闻。截图方式与全部图片见 [截图说明](docs/screenshots.md)。
 
-## 页面示意
+### 资讯总览
 
-以下截图以 @tibo、@thsottiaux 等 AI 领域账号名展示虚构演示推文。
+紧凑的顶部统计、两行摘要和可展开原文，让首屏直接用于阅读动态。右侧提供发文趋势与账号管理。
 
-### 桌面
+![资讯总览：真实账号、AI 摘要、分类和监控状态](docs/dashboard-desktop.png)
 
-![桌面版监控台示意](docs/dashboard-desktop.png)
+### Web3 动态
 
-### 手机
+通过「链上资金」筛选查看转账、持仓及资金流向，也支持上币与产品、项目动态和安全预警等分类。
 
-<img src="docs/dashboard-mobile.png" alt="手机版监控台示意" width="390">
+![Web3：链上资金分类下的真实保存记录](docs/web3-desktop.png)
 
-## Setup
+### 宏观与地缘
+
+「宏观与地缘」聚合通胀与利率、地缘冲突、能源与石油，也可分别筛选 CPI、央行政策、冲突进展及油气新闻。
+
+![宏观与地缘：通胀、利率、冲突和能源信息](docs/macro-desktop.png)
+
+### 每日简报
+
+按事件阅读重点、进展时间线及原帖来源，支持历史查看、继续重试和 Markdown 导出。
+
+![每日简报：实际生成的 2026-10-22 存档](docs/daily-desktop.png)
+
+<details>
+<summary>查看手机端</summary>
+
+<img src="docs/dashboard-mobile.png" alt="手机端资讯总览" width="390">
+<img src="docs/daily-mobile.png" alt="手机端每日简报" width="390">
+
+</details>
+
+## 功能
+
+| 能力 | 行为 |
+| --- | --- |
+| 账号采集 | 默认每 5 分钟检查；首次保存最多 100 条基线，后续检查最新 20 条；排除转推，保留回复、引用及附件标记 |
+| 额度恢复 | 接口限流时显示预计恢复时间，等待后继续当前及剩余账号；登录失效单独显示异常 |
+| 阅读与筛选 | 中文摘要、完整翻译、原帖展开；账号 / 分类 / 关键词组合筛选；SSE 自动更新 |
+| 宏观分类 | CPI、PCE、PPI、就业与央行政策；地缘冲突；原油、天然气、EIA 与 OPEC 动态 |
+| 原文与链接 | 原始 JSONL 留存、短链展开缓存、按账号导出完整 CSV / JSONL |
+| 预清洗 | 整理文本与链接，标记重复及上下文风险；保留原始证据，不单凭标签丢弃内容 |
+| 每日简报 | 北京时间 08:00 汇总前一天；最多 10 个重点事件；任务持久化、断点恢复、来源引用、Markdown 导出 |
+| 界面与管理 | 桌面和手机布局、登录保护、账号增删改；移除监控账号后保留历史文件 |
+
+账号可在页面维护，也可直接修改 `config/targets.txt`，下一轮采集生效。`config/targets.example.txt` 提供 AI、Web3 和宏观来源示例；按需启用，不包含部署实例的完整账号列表。
+
+## 开始使用
+
+需要 Python 3.10+，Linux / Unix 环境，以及可用的 X 会话。完整网页部署、服务权限和模型配置见 [部署指南](docs/deployment.md)。
 
 ```bash
-cd /srv
-git clone https://github.com/mmQuo/x-monitor.git x-monitor
-cd /srv/x-monitor
+git clone https://github.com/mmQuo/x-monitor.git
+cd x-monitor
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 cp config/targets.example.txt config/targets.txt
 ```
 
-Add cookies from an X account you control. Run this locally; do not paste cookies into a chat. The cookies must include `auth_token` and `ct0`:
+在自己的终端中导入 X 账号 Cookie，包含 `auth_token` 与 `ct0`：
 
 ```bash
 .venv/bin/twscrape --db accounts.db add_cookie my_account
 chmod 600 accounts.db
 .venv/bin/twscrape --db accounts.db accounts
+TWS_TELEMETRY=0 .venv/bin/python monitor.py --targets-file config/targets.txt --once
 ```
 
-## Run
+持续采集：
 
 ```bash
-TWS_TELEMETRY=0 .venv/bin/python monitor.py --targets-file config/targets.txt --once
 TWS_TELEMETRY=0 .venv/bin/python monitor.py --targets-file config/targets.txt --interval 300
 ```
 
-Add one username per line to `config/targets.txt`, without needing to restart the service. `@` is optional. For example, `tibo` uses `tibo_posts.jsonl`. You can also run a one-time check with repeated flags, such as `--username tibo --username thsottiaux --once`. Use `--output-dir` to choose the directory for account JSONL files.
+采集可独立运行；启用中文整理和日报时，再配置 `XMONITOR_AI_BASE_URL`、`XMONITOR_AI_API_KEY` 与 `XMONITOR_AI_MODEL`。
 
-Each JSONL record includes the post ID, URL, creation time, observation time, text, and a `baseline` flag. The first check fetches up to 100 recent posts from the account timeline; later checks search the latest 20 posts from that account to use a separate rate-limit bucket. Keep `accounts.db` private because it contains session cookies. To start a fresh baseline for an account, move or remove its JSONL file before restarting.
+## 文档与目录
 
-New records also save X's short URL and expanded URL from tweet entities. Historical `t.co` links are cached in `link_data/links.json`; `x-monitor-links.timer` resolves newly found links every 10 minutes, or run `.venv/bin/python link_backfill.py` manually. The backfill requests `t.co` only and reads its redirect target without following the destination. The dashboard links to the expanded URL and falls back to the original `t.co` URL if expansion fails. AI sees expanded URLs but does not treat a destination URL as evidence of the linked page's contents.
+- [部署指南](docs/deployment.md)：环境变量、systemd、权限、反向代理及常用运维命令。
+- [架构与数据流](docs/architecture.md)：模块职责、分类、清洗缓存和日报流程。
+- [截图说明](docs/screenshots.md)：真实数据来源、页面尺寸及重新渲染命令。
 
-The deployment units are in `deploy/systemd/`. They assume this directory is `/srv/x-monitor` and use separate `xmonitorweb` and `xmonitorai` service users. Adjust paths and permissions for another host. The monitor checks every 300 seconds; inspect it with `systemctl status x-monitor-monitor.service` or `journalctl -u x-monitor-monitor.service -f`.
-
-共享登录会话的接口额度暂不可用时，后台读取本地会话池的恢复时间，等待至额度恢复后继续当前账号和本轮剩余账号。网页显示「等待恢复」及预计恢复时间，保留上次检查结果；等待期间每 30 秒检查本地状态，可识别新增登录会话和已移除的监控账号。冷却时间较长时，本轮完成后间隔 5 分钟再开始下一轮。登录会话失效会单独显示异常。`--once` 用于单次检查，接口不可用时直接返回错误。
-
-## Web dashboard
-
-The password protected dashboard runs as `x-monitor-web.service` on `127.0.0.1:8765`. Put an HTTPS reverse proxy in front of it; secure cookies require HTTPS. It manages monitored usernames through `config/targets.txt` and displays saved posts and per-account check status. Adding, editing or removing a username takes effect on the next polling cycle. Removing an account leaves its historical JSONL file intact.
-
-The application service stays bound to localhost. Check it with `systemctl status x-monitor-web.service`. Set `XMONITOR_WEB_SECRET`, `XMONITOR_WEB_USERNAME`, and `XMONITOR_WEB_PASSWORD_HASH` in `/etc/x-monitor-web.env`; generate the hash with `werkzeug.security.generate_password_hash`. Set `XMONITOR_AI_BASE_URL`, `XMONITOR_AI_API_KEY`, and optionally `XMONITOR_AI_MODEL` in `/etc/x-monitor-ai.env`. Keep both environment files outside the repository and readable only by the relevant service users.
-
-The web backend uses Flask. The dashboard uses a locally vendored Bootstrap 5 stylesheet, with a small set of layout rules in `static/style.css`.
-
-Each monitored account has CSV and JSONL download links in the account list. Exports include every post saved in that account's JSONL file. CSV includes the original text, tweet URL, timestamps, AI category, summary, translation, and expanded links when available. JSONL downloads the original stored records unchanged.
-
-The authenticated `/events` SSE stream watches saved posts, AI annotations, status, and link cache files. When one changes, the page refreshes the visible feed without navigating away; the X checks themselves still run every 300 seconds.
-
-## 预清洗
-
-`clean_worker.py` 每 30 秒检查当前监控账号的新增内容，预处理范围为北京时间的今天、昨天。清洗结果保存在 `clean_data/clean_posts.sqlite3`；手动生成更早日期的日报时，按所选日期补齐清洗缓存。
-
-本地规则整理 HTML 转义、空白和短链，保留数字、否定词、版本号、署名与代码缩进。完整链接单独保存，链接匹配会忽略明确的跟踪参数。每条内容保留原帖 ID、时间和原文；相同文本形成重复内容组。问候、推广、仅链接、上下文不足等标签提供筛选线索，最终由事件提取阶段结合正文判断。
-
-缓存按原帖内容、相关链接映射和清洗规则版本校验。工作进程跳过未变化的文件，重复运行复用已完成的记录。日报快照固定清洗后的片段及其原文位置，最终核对仍可引用对应原文；恢复任务时沿用该期快照。
-
-首次检查可运行 `.venv/bin/python clean_worker.py --once`，输出本次处理数量和缓存统计。持续运行使用 `x-monitor-clean.service`，日志通过 `journalctl -u x-monitor-clean.service` 查看。
-
-## 日报
-
-顶部的「日报」页面按北京时间汇总一天的内容，展示重点事件、关键进展和原帖引用。可选择日期手动生成、查看历史、展开原文，或导出 Markdown。当天的日报标注数据截止时间；重新生成后会保存新的版本。生成进度通过 SSE 更新到页面。
-
-下图以虚构的 AI 资讯展示日报布局：
-
-![日报页面示意：重点事件、进展与原帖来源](docs/daily-desktop.png)
-
-`daily_worker.py --schedule` 每天北京时间 08:00 为前一天生成一期日报。启动晚于 08:00 时补上前一天的任务；生成失败后可在页面点击「继续重试」。任务在后台完成，页面关闭后仍会继续运行。
-
-处理流程先读取预清洗缓存，固定当前监控账号及当日推文快照，再分批提取事件、归并并挑选重点，最后用原帖核对正文。附件与上下文明确时，可复用相同内容；图片、引用帖和上下文未知的输入分别保留。较长的推文会分段提取；最终核对使用所选来源的原文节选。进展时间表示原帖发布时间。每个处理批次都校验引用和推文覆盖范围，全部输入完成处理后才发布一期；日报最多展示 10 个重点事件。
-
-每次模型调用的提示内容最多 24,000 UTF-8 字节，分批材料最多 15,500 字节。总调用量随当日内容增长。中间结果、用量、推文快照和各期日报保存在 `report_data/reports.sqlite3`，中断后会复用已完成的步骤。默认沿用翻译功能的模型配置 `XMONITOR_AI_BASE_URL`、`XMONITOR_AI_API_KEY`、`XMONITOR_AI_MODEL`。
-
-部署前创建可供网页和后台服务共同写入的数据目录，再安装服务文件：
-
-```bash
-install -d -o xmonitorai -g xmonitorweb -m 2770 /srv/x-monitor/report_data
-install -d -o xmonitorai -g xmonitorweb -m 2770 /srv/x-monitor/clean_data
-cp deploy/systemd/x-monitor-clean.service /etc/systemd/system/
-cp deploy/systemd/x-monitor-daily.service /etc/systemd/system/
-cp deploy/systemd/x-monitor-web.service /etc/systemd/system/
-systemctl daemon-reload
-systemctl enable --now x-monitor-clean.service x-monitor-daily.service
-systemctl restart x-monitor-web.service
+```text
+monitor.py                  X 账号采集与增量保存
+ai_worker.py / categories.py 中文摘要、翻译与共享分类
+link_*.py                   短链缓存与正文链接处理
+clean_*.py / post_cleaner.py 文本预处理与清洗缓存
+daily_worker.py             每日简报生成流程
+report_store.py              日报队列、快照与断点存储
+web_app.py / report_web.py   登录、工作台、导出与日报路由
+templates/ / static/        页面、样式、图标和交互
+deploy/                     环境变量示例与 systemd 单元
+scripts/                    页面截图工具
+tests/                      清洗、分类和日报回归测试
 ```
 
-服务使用 `UMask=0007`，日报数据目录使用共享组权限。单独运行可用 `.venv/bin/python daily_worker.py --date 2026-01-02 --once`（需先加载 AI 环境变量，并以同一服务用户运行）。后台服务开启时通过网页提交任务，运行日志可通过 `journalctl -u x-monitor-daily.service` 查看。
+## 开发与验证
 
-验证：`.venv/bin/python -m unittest discover -s tests -v`。
+```bash
+.venv/bin/python -m unittest discover -s tests -v
+```
 
-## Repository contents
+测试使用临时数据和模拟模型响应，不需要 X Cookie 或模型 API Key。页面截图额外使用 Playwright，安装方式见 [截图说明](docs/screenshots.md)。
 
-The repository contains source code, templates, static assets, a sample account list, dependencies, and deployment units. Session cookies (`accounts.db`), environment files, actual account lists, saved posts, AI annotations, link caches, preprocessing caches, daily-report data, and runtime status are excluded by `.gitignore`.
+仓库只保存源码、示例配置、文档和页面图片。`.gitignore` 排除了会话数据库、环境变量文件、实际账号列表、原始推文、AI 注解、短链缓存、清洗缓存、日报数据库与运行状态。

@@ -1,3 +1,18 @@
-# Monitored X usernames, one per line.
+# Monitored X usernames, one per line; @ is optional.
+# Keep only the sources you want. Uncomment examples to enable them.
+
+# AI
 tibo
 thsottiaux
+
+# Web3
+# WuBlockchain
+# lookonchain
+# Aster_DEX
+
+# Macro and geopolitics
+# ReutersWorld
+# BLS_gov
+# federalreserve
+# EIAgov
+# OPECSecretariat

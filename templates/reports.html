@@ -1,25 +1,22 @@
 {% extends "base.html" %}
-{% block title %}日报 · 推文监控{% endblock %}
-{% block header_status %}<span class="report-schedule">每天 08:00 生成前一天的日报 · 北京时间</span>{% endblock %}
+{% block title %}每日简报 · 推文监控{% endblock %}
+{% block breadcrumb %}每日简报{% endblock %}
+{% block header_status %}<span class="header-cadence">{{ icon('clock', 15) }}每日 08:00 更新 · 北京时间</span><span class="header-report-tag">{{ icon('sparkles', 13) }}AI 辅助整理</span>{% endblock %}
 {% block scripts %}<script src="{{ url_for('static', filename='reports.js', v='4') }}" defer></script>{% endblock %}
 {% block content %}
-{% for category, message in get_flashed_messages(with_categories=true) %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+{% for category, message in get_flashed_messages(with_categories=true) %}<div class="flash {{ category }}" role="status">{{ message }}</div>{% endfor %}
 <div class="report-workspace" data-report-day="{{ day }}">
-  <section class="card panel report-panel" aria-labelledby="report-title">
+  <section class="panel report-panel" aria-labelledby="report-title">
     <div class="report-toolbar">
-      <h1 id="report-title">每日简报</h1>
-      <form action="{{ url_for('reports.index') }}" method="get" class="report-date-form">
-        <label for="report-date" class="sr-only">日报日期</label>
-        <input class="form-control form-control-sm" type="date" id="report-date" name="date" value="{{ day }}" max="{{ today }}" required>
-        <button class="btn btn-outline-secondary btn-sm" type="submit">查看</button>
-      </form>
-      <span id="report-live-state" class="report-live-state">自动更新</span>
+      <h2 id="report-title">本期简报</h2>
+      <form action="{{ url_for('reports.index') }}" method="get" class="report-date-form"><label for="report-date" class="sr-only">选择日报日期</label><input class="form-control" type="date" id="report-date" name="date" value="{{ day }}" max="{{ today }}" required><button class="btn btn-outline-secondary" type="submit">查看</button></form>
+      <span id="report-live-state" class="report-live-state">连接中</span>
     </div>
     <div id="report-content">{% include "_daily_report.html" %}</div>
   </section>
-  <aside class="card panel report-history-panel" aria-labelledby="report-history-title">
-    <div class="card-header section-heading"><h2 id="report-history-title">历史日报</h2><span>最近 30 期</span></div>
-    <div id="report-history">{% include "_report_history.html" %}</div>
+  <aside class="report-sidebar">
+    <section class="panel report-history-panel" aria-labelledby="report-history-title"><div class="section-heading"><h2 id="report-history-title">往期简报</h2><span class="history-limit">最近 30 期</span></div><div id="report-history">{% include "_report_history.html" %}</div></section>
+    <div class="reading-note"><span class="reading-note-icon">{{ icon('document', 22) }}</span><strong>每一个重点，都有出处。</strong><p>展开事件下方的原帖，查看完整信息。简报中的时间均为北京时间。</p><a href="{{ url_for('dashboard') }}">回到资讯总览 {{ icon('arrow', 14) }}</a></div>
   </aside>
 </div>
 {% endblock %}

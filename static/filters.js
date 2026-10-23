@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const checked = document.querySelector('#last-checked');
   const accountList = document.querySelector('#account-list');
   const liveState = document.querySelector('#live-state');
+  const refreshLink = document.querySelector('#feed-refresh');
+  const numberFormat = new Intl.NumberFormat('zh-CN');
   let controller;
   let latestRequest = 0;
   let refreshTimer;
@@ -61,10 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       chart.innerHTML = data.chart_html;
       count.textContent = String(data.count);
-      today.textContent = String(data.today);
-      total.textContent = String(data.total_posts);
-      aiCount.textContent = String(data.ai_count);
+      today.textContent = numberFormat.format(data.today);
+      total.textContent = numberFormat.format(data.total_posts);
+      aiCount.textContent = numberFormat.format(data.ai_count);
       checked.textContent = data.last_checked;
+      if (refreshLink) refreshLink.href = url.href;
       if (refreshAccounts && !accountList.querySelector('.account-manage[open]')) {
         accountList.innerHTML = data.accounts_html;
       }

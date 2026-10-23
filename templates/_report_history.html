@@ -1,5 +1,6 @@
+{% from '_icons.html' import icon %}
 {% for item in history %}
 <a class="report-history-item{% if item.day == day %} selected{% endif %}" href="{{ url_for('reports.index', date=item.day) }}"{% if item.day == day %} aria-current="page"{% endif %}>
-  <span>{{ item.day }}</span><span class="report-state {{ item.status }}">{{ {'complete':'已生成','queued':'排队中','running':'生成中','failed':'待重试'}[item.status] }}</span>
+  <span class="history-icon">{{ icon('document', 16) }}</span><span class="history-date">{{ item.day[5:7] }} 月 {{ item.day[8:] }} 日<small>{{ item.day[:4] }} · 每日简报</small></span><span class="report-state {{ item.status }}">{{ {'complete':'已生成','queued':'排队中','running':'生成中','failed':'待重试'}[item.status] }}</span>{{ icon('chevron', 12) }}
 </a>
-{% else %}<p class="report-history-empty">生成后可在这里查看往期日报。</p>{% endfor %}
+{% else %}<div class="report-history-empty">{{ icon('archive', 24) }}<p>简报会在这里妥善保存，<br>随时回顾，随时重读。</p></div>{% endfor %}
