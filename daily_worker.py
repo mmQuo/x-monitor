@@ -15,6 +15,8 @@ from pathlib import Path
 import httpx
 
 from ai_worker import API_KEY, BASE_URL, MODEL
+from clean_store import CleanStore, load_links
+from post_cleaner import CLEANER_VERSION, FLAG_LABELS
 from report_store import BASE, ReportStore, TZ, day_bounds, encode, now_iso, schedule_due
 
 PROMPT_BYTES = 24000  # UTF-8 bytes conservatively bound token use, independent of tokenizer.
@@ -35,6 +37,7 @@ EXTRACT = RULES + """
 importance 为1到5，按影响范围、实际新进展、信息量评分；5代表重大进展。每个输入 ID 必须出现在 events.source_ids 或 ignored_ids 中。
 只有问候、纯推广、无实质内容可忽略；信息不足的简短新闻仍须保留并注明报道者。一个事件可含多个 ID。
 summary 务必具体，保留重要数字、发布日期、产品名；不要将摘要写成泛泛的行业趋势。"""
+EXTRACT += "\nquality_flags 是程序给出的提示，须结合正文判断；短消息也可能包含重要事实。links 仅提供链接线索，不代表已读取网页。"
 SELECT = RULES + """
 将这些候选事件合并、排序，选出最多 LIMIT 个最值得关注的事件。覆盖输入中重要的不同主题。
 输出 {"events":[{"title":"具体标题","summary":"最多140字的关键事实",
@@ -116,16 +119,58 @@ def snapshot_posts(day, base=BASE):
                     posts[post_id] = {"id": post_id, "username": name,
                         "created_at": stamp.astimezone(TZ).isoformat(),
                         "text": str(post.get("text") or ""),
-                        "url": f"https://x.com/{name}/status/{post_id}"}
+                        "url": f"https://x.com/{name}/status/{post_id}",
+                        "links": post.get("links") or []}
+                    for key in ("has_media", "reply_to_id", "quoted_post_id"):
+                        if key in post:
+                            posts[post_id][key] = post[key]
                 except (ValueError, KeyError, TypeError, OverflowError):
                     continue
+    cleaned, _ = CleanStore(base).prepare(posts.values(), load_links(base))
+    for post in posts.values():
+        post["cleaned"] = cleaned[post["id"]]
     return {"day": day, "timezone": "Asia/Shanghai", "start": start.isoformat(),
             "end": end.isoformat(), "captured_at": captured_at, "accounts": names,
+            "cleaner_version": CLEANER_VERSION,
             "posts": sorted(posts.values(), key=lambda p: (p["created_at"], p["id"]))}
 
 
-def prepare_posts(snapshot):
+def prepare_clean_posts(snapshot, evidence=False):
+    records, seen, duplicates = [], set(), 0
+    for post in snapshot["posts"]:
+        cleaned = post["cleaned"]
+        signature = cleaned["duplicate_group"]
+        # Incomplete attachment/context metadata makes equality uncertain. Keep
+        # those inputs separate; all records remain in the immutable snapshot.
+        can_merge = (signature and post.get("has_media") is False
+                     and not post.get("reply_to_id") and not post.get("quoted_post_id")
+                     and "context_missing" not in cleaned["flags"])
+        # Relative first-person claims depend on the speaker.
+        if re.search(r"\b(?:I|we|our|my)\b|我们|本人|我", cleaned["clean_text"], re.I):
+            signature = (signature, post["username"].lower())
+        if can_merge and signature in seen:
+            duplicates += 1
+            continue
+        if can_merge:
+            seen.add(signature)
+        for index, part in enumerate(cleaned["fragments"]):
+            record = {"id": post["id"] if index == 0 else f"{post['id']}.{index + 1}",
+                      "account": "@" + post["username"], "published_at": post["created_at"],
+                      "part": index + 1, "text": post["text"][part["start"]:part["end"]] if evidence else part["text"]}
+            if not evidence:
+                if part["links"]:
+                    record["links"] = part["links"]
+                if cleaned["flags"]:
+                    record["quality_flags"] = [FLAG_LABELS.get(flag, flag) for flag in cleaned["flags"]]
+            records.append(record)
+    return records, duplicates
+
+
+def prepare_posts(snapshot, evidence=False):
     """Deduplicate identical text; split long posts so extraction reads all text."""
+    if snapshot.get("cleaner_version"):
+        return prepare_clean_posts(snapshot, evidence)
+    # Older in-progress jobs retain their original batch boundaries and IDs.
     seen, records, duplicates = set(), [], 0
     for post in snapshot["posts"]:
         text = post["text"]
@@ -313,7 +358,7 @@ class Workflow:
             self.store.snapshot(self.run_id, snapshot, MODEL)
         posts = {p["id"]: p for p in snapshot["posts"]}
         records, duplicates = prepare_posts(snapshot)
-        evidence_map = {record["id"]: record for record in records}
+        evidence_map = {record["id"]: record for record in prepare_posts(snapshot, evidence=True)[0]}
         groups = list(batches(records))
         candidates, ignored = [], set()
         def extract(index, group):

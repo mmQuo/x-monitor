@@ -1,0 +1,22 @@
+[Unit]
+Description=Preprocess recent saved X posts
+After=local-fs.target
+
+[Service]
+Type=simple
+User=xmonitorai
+Group=xmonitorweb
+WorkingDirectory=/srv/x-monitor
+ExecStart=/srv/x-monitor/.venv/bin/python /srv/x-monitor/clean_worker.py --interval 30
+Restart=always
+RestartSec=15
+UMask=0007
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/x-monitor/clean_data
+RestrictAddressFamilies=AF_UNIX
+
+[Install]
+WantedBy=multi-user.target

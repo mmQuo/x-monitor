@@ -117,6 +117,9 @@ async def poll(api: API, username: str, limit: int, output: Path, seen: set[int]
                     "observed_at": datetime.now(timezone.utc).isoformat(),
                     "text": post.rawContent,
                     "links": tweet_links(post),
+                    "has_media": any(getattr(post.media, key, []) for key in ("photos", "videos", "animated")),
+                    "reply_to_id": str(post.inReplyToTweetId) if post.inReplyToTweetId else None,
+                    "quoted_post_id": str(post.quotedTweet.id) if post.quotedTweet else ("unknown" if post.isQuoteStatus else None),
                     "baseline": baseline,
                 }
                 file.write(json.dumps(record, ensure_ascii=False) + "\n")

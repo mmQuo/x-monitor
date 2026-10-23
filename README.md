@@ -66,6 +66,16 @@ Each monitored account has CSV and JSONL download links in the account list. Exp
 
 The authenticated `/events` SSE stream watches saved posts, AI annotations, status, and link cache files. When one changes, the page refreshes the visible feed without navigating away; the X checks themselves still run every 300 seconds.
 
+## 预清洗
+
+`clean_worker.py` 每 30 秒检查当前监控账号的新增内容，预处理范围为北京时间的今天、昨天。清洗结果保存在 `clean_data/clean_posts.sqlite3`；手动生成更早日期的日报时，按所选日期补齐清洗缓存。
+
+本地规则整理 HTML 转义、空白和短链，保留数字、否定词、版本号、署名与代码缩进。完整链接单独保存，链接匹配会忽略明确的跟踪参数。每条内容保留原帖 ID、时间和原文；相同文本形成重复内容组。问候、推广、仅链接、上下文不足等标签提供筛选线索，最终由事件提取阶段结合正文判断。
+
+缓存按原帖内容、相关链接映射和清洗规则版本校验。工作进程跳过未变化的文件，重复运行复用已完成的记录。日报快照固定清洗后的片段及其原文位置，最终核对仍可引用对应原文；恢复任务时沿用该期快照。
+
+首次检查可运行 `.venv/bin/python clean_worker.py --once`，输出本次处理数量和缓存统计。持续运行使用 `x-monitor-clean.service`，日志通过 `journalctl -u x-monitor-clean.service` 查看。
+
 ## 日报
 
 顶部的「日报」页面按北京时间汇总一天的内容，展示重点事件、关键进展和原帖引用。可选择日期手动生成、查看历史、展开原文，或导出 Markdown。当天的日报标注数据截止时间；重新生成后会保存新的版本。生成进度通过 SSE 更新到页面。
@@ -76,7 +86,7 @@ The authenticated `/events` SSE stream watches saved posts, AI annotations, stat
 
 `daily_worker.py --schedule` 每天北京时间 08:00 为前一天生成一期日报。启动晚于 08:00 时补上前一天的任务；生成失败后可在页面点击「继续重试」。任务在后台完成，页面关闭后仍会继续运行。
 
-处理流程先固定当前监控账号及当日推文快照，再对重复内容去重、分批提取事件、归并并挑选重点，最后用原帖核对正文。较长的推文会分段提取；最终核对使用所选来源的原文节选。进展时间表示原帖发布时间。每个处理批次都校验引用和推文覆盖范围，全部输入完成处理后才发布一期；日报最多展示 10 个重点事件。
+处理流程先读取预清洗缓存，固定当前监控账号及当日推文快照，再分批提取事件、归并并挑选重点，最后用原帖核对正文。附件与上下文明确时，可复用相同内容；图片、引用帖和上下文未知的输入分别保留。较长的推文会分段提取；最终核对使用所选来源的原文节选。进展时间表示原帖发布时间。每个处理批次都校验引用和推文覆盖范围，全部输入完成处理后才发布一期；日报最多展示 10 个重点事件。
 
 每次模型调用的提示内容最多 24,000 UTF-8 字节，分批材料最多 15,500 字节。总调用量随当日内容增长。中间结果、用量、推文快照和各期日报保存在 `report_data/reports.sqlite3`，中断后会复用已完成的步骤。默认沿用翻译功能的模型配置 `XMONITOR_AI_BASE_URL`、`XMONITOR_AI_API_KEY`、`XMONITOR_AI_MODEL`。
 
@@ -84,10 +94,12 @@ The authenticated `/events` SSE stream watches saved posts, AI annotations, stat
 
 ```bash
 install -d -o xmonitorai -g xmonitorweb -m 2770 /srv/x-monitor/report_data
+install -d -o xmonitorai -g xmonitorweb -m 2770 /srv/x-monitor/clean_data
+cp deploy/systemd/x-monitor-clean.service /etc/systemd/system/
 cp deploy/systemd/x-monitor-daily.service /etc/systemd/system/
 cp deploy/systemd/x-monitor-web.service /etc/systemd/system/
 systemctl daemon-reload
-systemctl enable --now x-monitor-daily.service
+systemctl enable --now x-monitor-clean.service x-monitor-daily.service
 systemctl restart x-monitor-web.service
 ```
 
@@ -97,4 +109,4 @@ systemctl restart x-monitor-web.service
 
 ## Repository contents
 
-The repository contains source code, templates, static assets, a sample account list, dependencies, and deployment units. Session cookies (`accounts.db`), environment files, actual account lists, saved posts, AI annotations, link caches, daily-report data, and runtime status are excluded by `.gitignore`.
+The repository contains source code, templates, static assets, a sample account list, dependencies, and deployment units. Session cookies (`accounts.db`), environment files, actual account lists, saved posts, AI annotations, link caches, preprocessing caches, daily-report data, and runtime status are excluded by `.gitignore`.

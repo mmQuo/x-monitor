@@ -24,4 +24,5 @@ monitor_status.json
 ai_data/
 link_data/
 report_data/
+clean_data/
 *.log
