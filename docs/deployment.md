@@ -116,7 +116,7 @@ RSS 配置保存在 `config/rss_sources.json`，采集记录和状态保存在 `
 
 ## 事件地图
 
-左侧菜单的「事件地图」打开独立 `/map` 页面，支持最近 24 小时、3 天、7 天、来源、分类、关键词和时间回看。手机端可切换地图与事件列表。
+左侧菜单的「事件地图」打开独立 `/map` 页面，默认显示 3D 地球与卫星影像。左上角可切换「平面 / 3D 地球」和底图样式，浏览器会记住选择。支持最近 24 小时、3 天、7 天、来源、分类、关键词和时间回看；切换视图保留当前筛选和地点选择。右上角的地球按钮恢复「全球视图」，地球支持拖动旋转和滚轮 / 双指缩放，背面地点会随旋转显示。手机端可切换地图与事件列表。
 
 ```bash
 install -d -o xmonitorai -g xmonitorweb -m 2750 /srv/x-monitor/geo_data
@@ -130,7 +130,9 @@ systemctl restart x-monitor-web.service
 
 `geo_data/locations.json` 保存地点与原文依据，`geo_data/status.json` 保存处理进度。网页通过 `/map/stream` 接收更新，并以 30 秒轮询补充。数据和 API 均需要登录。日志使用 `journalctl -u x-monitor-map.service` 查看。
 
-地图使用本地托管的 MapLibre GL JS 5.6.2（BSD-3-Clause），底图按视口加载 OpenStreetMap 瓦片并保留署名。国家轮廓与国家名称来自 Natural Earth 公有领域数据，作为本地基础图层；城市及区域使用 `config/map_places.json` 中的代表点。国家 / 区域标记在页面注明范围，地点覆盖以该表为准。修改地点表或识别规则时更新 `map_worker.VERSION` 并重启地图服务，以重新校验缓存。
+点击右侧新闻标题，地图会转向并放大到对应地点，同时高亮新闻及其标记；多地点新闻会调整视野显示相关区域。点击地图标记则筛选相关资讯。手机上可展开新闻阅读，再通过「地图」标签查看已定位区域。
+
+地图使用本地托管的 MapLibre GL JS 5.6.2（BSD-3-Clause）。「彩色地图」使用 OpenStreetMap 标准样式，「卫星影像」使用 Esri World Imagery；两者均按视口加载瓦片并保留来源署名，底图选择会在浏览器中保存。可通过 `?projection=globe&basemap=satellite` 直接查看卫星地球，影像拍摄时间随地区而异。国家轮廓与国家名称来自 Natural Earth 公有领域数据，作为本地基础图层；城市及区域使用 `config/map_places.json` 中的代表点。国家 / 区域标记在页面注明范围，地点覆盖以该表为准。修改地点表或识别规则时更新 `map_worker.VERSION` 并重启地图服务，以重新校验缓存。
 
 ## HTTPS 与实时更新
 

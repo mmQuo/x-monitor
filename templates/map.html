@@ -2,8 +2,8 @@
 {% block title %}事件地图 · 推文监控{% endblock %}
 {% block breadcrumb %}事件地图{% endblock %}
 {% block header_status %}<span class="header-cadence">{{ icon('map', 15) }}按地点浏览资讯</span><span id="map-live" class="live-state" role="status">加载中</span>{% endblock %}
-{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='vendor/maplibre/maplibre-gl.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='map.css', v='2') }}">{% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='vendor/maplibre/maplibre-gl-csp.js') }}" defer></script><script src="{{ url_for('static', filename='map.js', v='2') }}" defer></script>{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='vendor/maplibre/maplibre-gl.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='map.css', v='5') }}">{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='vendor/maplibre/maplibre-gl-csp.js') }}" defer></script><script src="{{ url_for('static', filename='map.js', v='5') }}" defer></script>{% endblock %}
 {% block content %}
 <section class="map-page" data-worker-url="{{ url_for('static', filename='vendor/maplibre/maplibre-gl-csp-worker.js') }}">
   <form id="map-filters" class="map-filters" role="search">
@@ -17,9 +17,15 @@
   <div class="map-mobile-switch" role="group" aria-label="切换地图与列表"><button type="button" data-view="map" aria-pressed="true">{{ icon('map', 16) }}地图</button><button type="button" data-view="list" aria-pressed="false">{{ icon('document', 16) }}事件列表 <span id="mobile-count">0</span></button></div>
   <div class="map-workspace" data-view="map">
     <div class="map-canvas-panel">
-      <div id="event-map" aria-label="新闻事件平面地图"></div>
-      <div class="map-toolbar"><button type="button" class="map-tool" id="map-reset">{{ icon('map', 15) }}全球视图</button><button type="button" class="map-tool" id="map-clear" hidden>清除地点筛选 ×</button></div>
+      <div id="event-map" aria-label="新闻事件 3D 地球"></div>
+      <div class="map-toolbar">
+        <div class="map-projection-switch" role="group" aria-label="地图显示方式"><button type="button" data-projection="mercator" aria-pressed="false">{{ icon('map', 15) }}平面</button><button type="button" data-projection="globe" aria-pressed="true">{{ icon('globe', 15) }}3D 地球</button></div>
+        <label class="sr-only" for="map-basemap">底图样式</label><select id="map-basemap" class="map-tool map-basemap"><option value="streets">彩色地图</option><option value="satellite" selected>卫星影像</option></select>
+        <button type="button" class="map-tool" id="map-clear" hidden>清除地点筛选 ×</button>
+      </div>
+      <button type="button" class="map-tool map-reset" id="map-reset" title="全球视图" aria-label="全球视图">{{ icon('globe', 17) }}</button>
       <p id="map-error" class="map-notice" role="status" hidden></p>
+      <p class="map-gesture" id="map-gesture" hidden>拖动旋转 · 滚轮 / 双指缩放</p>
       <div class="map-legend"><span><i class="dot-city"></i>城市</span><span><i class="dot-region"></i>国家 / 区域</span><span>数字为关联资讯数</span></div>
     </div>
     <aside class="map-events-panel" aria-label="与地图联动的资讯列表">

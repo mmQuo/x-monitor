@@ -279,8 +279,8 @@ def secure_headers(response):
     if request.blueprint == "maps":
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; script-src 'self'; worker-src 'self'; "
-            "style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob: https://tile.openstreetmap.org; "
-            "connect-src 'self' https://tile.openstreetmap.org; "
+            "style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob: https://tile.openstreetmap.org https://server.arcgisonline.com; "
+            "connect-src 'self' https://tile.openstreetmap.org https://server.arcgisonline.com; "
             "base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
         )
     response.headers["X-Content-Type-Options"] = "nosniff"
