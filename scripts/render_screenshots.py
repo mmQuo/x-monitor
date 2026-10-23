@@ -1,8 +1,4 @@
-"""Render real saved data with the current UI in an isolated local preview.
-
-Install requirements-screenshots.txt and Playwright Chromium first. This tool
-copies only display data, never credentials, and starts no collectors or workers.
-"""
+"""Capture the dashboard and daily brief using saved data and Playwright Chromium."""
 
 import argparse
 import json
@@ -17,7 +13,6 @@ import threading
 import time
 from datetime import date, datetime
 from pathlib import Path
-from urllib.parse import urlencode
 from zoneinfo import ZoneInfo
 
 from werkzeug.security import generate_password_hash
@@ -91,16 +86,12 @@ def render(origin, password, day, output, executable):
 
     routes = [
         ("dashboard-desktop.png", "/", 1440, 1000, False),
-        ("web3-desktop.png", "/?" + urlencode({"category": "链上资金"}), 1440, 1000, False),
-        ("macro-desktop.png", "/?" + urlencode({"category": "宏观与地缘"}), 1440, 1000, False),
         ("daily-desktop.png", f"/reports?date={day}", 1440, 1100, True),
-        ("dashboard-mobile.png", "/", 390, 1000, False),
-        ("daily-mobile.png", f"/reports?date={day}", 390, 1100, True),
     ]
     manifest = {
         "captured_at": datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(timespec="seconds"),
         "timezone": "Asia/Shanghai",
-        "source": "Saved public X posts and existing AI annotations/reports; no content edits",
+        "source": "Saved X posts, AI annotations and daily reports",
         "report_date": day,
         "screenshots": [],
     }

@@ -1,10 +1,31 @@
 # 部署指南
 
-以下以 Linux + systemd、项目目录 `/srv/x-monitor` 为例。Python 要求 3.10+；需要可访问 X 和所选模型接口。先完成 [README](../README.md#开始使用) 中的依赖安装、账号配置和单次采集。
+以下以 Linux + systemd、项目目录 `/srv/x-monitor` 为例，使用 Python 3.10+。
+
+## 安装与采集
+
+```bash
+cd /srv
+git clone https://github.com/mmQuo/x-monitor.git
+cd x-monitor
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+cp config/targets.example.txt config/targets.txt
+```
+
+在 `config/targets.txt` 中填写要监控的用户名，每行一个。导入包含 `auth_token` 与 `ct0` 的 X 账号 Cookie，然后运行一次采集：
+
+```bash
+.venv/bin/twscrape --db accounts.db add_cookie my_account
+chmod 600 accounts.db
+TWS_TELEMETRY=0 .venv/bin/python monitor.py --targets-file config/targets.txt --once
+```
+
+持续采集可使用 `--interval 300`，或按下方步骤安装 systemd 服务。
 
 ## 目录与服务用户
 
-仓库中的服务单元使用 `xmonitorweb` 提供网页，`xmonitorai` 运行中文整理、预清洗、短链与日报。两者共享 `xmonitorweb` 组。采集服务沿用系统服务默认用户 root，Cookie 数据库保持 `0600`；网页和 AI 进程不需要读取它。
+仓库中的服务单元使用 `xmonitorweb` 提供网页，`xmonitorai` 运行中文整理、预清洗、短链与日报。两者共享 `xmonitorweb` 组。采集服务沿用系统服务默认用户 root，Cookie 数据库保持 `0600`，由采集进程使用。
 
 在初次部署时以 root 执行：
 
@@ -22,7 +43,7 @@ install -d -o xmonitorai -g xmonitorweb -m 2750 ai_data link_data
 install -d -o xmonitorai -g xmonitorweb -m 2770 clean_data report_data
 ```
 
-根目录的 setgid 位使新建原帖和状态文件继承共享组。若已运行过采集，先将已有的 `*_posts.jsonl`、`*.baseline_at` 和 `monitor_status.json` 设为 `xmonitorweb` 组可读；不要改变 `accounts.db` 的私有权限。源码、静态资源及虚拟环境需对两个服务用户可读 / 可执行，且无需赋予写权限。已存在的用户和目录沿用即可。
+根目录的 setgid 位使新建原帖和状态文件继承共享组。若已运行过采集，先将已有的 `*_posts.jsonl`、`*.baseline_at` 和 `monitor_status.json` 设为 `xmonitorweb` 组可读。`accounts.db` 保持 `0600` 权限。源码、静态资源及虚拟环境为两个服务用户提供读取 / 执行权限。已存在的用户和目录沿用即可。
 
 ## 环境变量
 
@@ -37,7 +58,7 @@ install -o root -g xmonitorweb -m 640 deploy/ai.env.example /etc/x-monitor-ai.en
 | --- | --- |
 | `XMONITOR_WEB_SECRET` | 随机会话签名密钥；更换后已有登录失效 |
 | `XMONITOR_WEB_USERNAME` | 网页登录用户名 |
-| `XMONITOR_WEB_PASSWORD_HASH` | Werkzeug 密码哈希，不是明文密码 |
+| `XMONITOR_WEB_PASSWORD_HASH` | Werkzeug 生成的登录密码哈希 |
 | `XMONITOR_AI_BASE_URL` | 兼容接口的基础地址，通常包含 `/v1`；应用追加 `/chat/completions` |
 | `XMONITOR_AI_API_KEY` | 模型服务密钥 |
 | `XMONITOR_AI_MODEL` | 网关支持的模型 ID；摘要和日报共享此配置 |
@@ -50,7 +71,7 @@ install -o root -g xmonitorweb -m 640 deploy/ai.env.example /etc/x-monitor-ai.en
 .venv/bin/python -c 'from getpass import getpass; from werkzeug.security import generate_password_hash; print(generate_password_hash(getpass("Web password: ")))'
 ```
 
-环境文件每行 `KEY=value`，不要加 `export`。Cookie、密钥和实际环境文件不进入 Git。
+环境文件采用每行 `KEY=value` 的格式，由 systemd 加载。
 
 ## 安装 systemd 服务
 
@@ -71,11 +92,11 @@ systemctl enable --now x-monitor-clean.service x-monitor-daily.service x-monitor
 | `x-monitor-clean.service` | 每 30 秒处理今天和昨天 | `clean_data/` |
 | `x-monitor-daily.service` | 北京时间 08:00 为前一天排队，持续处理网页任务 | `report_data/`、`clean_data/` |
 
-网页和 AI 服务启用 `ProtectSystem=strict`，只开放表中目录写入。日报 / 预清洗使用共享组及 `UMask=0007`，保证 SQLite 和 WAL 可由相应进程访问。更换部署路径时同步修改每个单元的 `WorkingDirectory`、`ExecStart` 和 `ReadWritePaths`。
+网页和 AI 服务启用 `ProtectSystem=strict`，按表中的目录配置写入权限。日报 / 预清洗使用共享组及 `UMask=0007`，保证 SQLite 和 WAL 可由相应进程访问。更换部署路径时同步修改每个单元的 `WorkingDirectory`、`ExecStart` 和 `ReadWritePaths`。
 
 ## HTTPS 与实时更新
 
-网页默认只监听 `127.0.0.1:8765`，在前面配置 HTTPS 反向代理。会话 Cookie 固定启用 `Secure`，直接使用远程 HTTP 地址无法正常保持登录。
+网页监听 `127.0.0.1:8765`，通过 HTTPS 反向代理访问。会话 Cookie 启用 `Secure`，在 HTTPS 连接中保持登录。
 
 例如在已有 TLS 配置的 Nginx `server` 中加入：
 
@@ -104,7 +125,7 @@ journalctl -u x-monitor-ai.service -f
 journalctl -u x-monitor-daily.service -f
 ```
 
-修改账号无需重启；修改环境变量后重启对应服务。网页账号列表可导出完整历史 CSV / JSONL，日报页面可导出 Markdown。移除账号仅停止跟踪，历史文件仍保留。
+账号修改在下一轮采集时生效；修改环境变量后重启对应服务。网页账号列表可导出完整历史 CSV / JSONL，日报页面可导出 Markdown。移除账号后，历史文件继续保留。
 
 单次命令应在项目目录、相应服务用户和相同环境下运行；中文整理与日报需先加载 AI 环境变量：
 
@@ -115,8 +136,8 @@ journalctl -u x-monitor-daily.service -f
 .venv/bin/python daily_worker.py --date 2026-01-02 --once
 ```
 
-后台日报服务已运行时，通过网页提交任务，避免并发启动第二个 worker。当天日报标注数据截止时间；失败后可继续重试，已完成步骤会复用。
+后台日报服务已运行时，通过网页提交任务，由运行中的 worker 统一处理。当天日报标注数据截止时间；失败后可继续重试，已完成步骤会复用。
 
-采集支持重复传入 `--username`，也支持 `--output-dir`。整套工作台默认读取项目根目录中的 JSONL；单独指定采集输出目录不会自动改变其他模块的数据位置。需要重新建立某账号基线时，先停止采集并备份该账号 JSONL 与对应 `.baseline_at`，移走后再启动。
+采集支持重复传入 `--username`，也支持 `--output-dir`。整套工作台默认读取项目根目录中的 JSONL；调整输出目录时，同步配置各模块的数据位置。需要重新建立某账号基线时，先停止采集并备份该账号 JSONL 与对应 `.baseline_at`，移走后再启动。
 
-升级前备份 `config/targets.txt`、会话文件、原始帖子、AI / 链接数据以及清洗和日报数据库。SQLite 使用 backup API 或停服务后复制，避免只复制主文件而遗漏 WAL。服务单元有改动时重新安装并执行 `systemctl daemon-reload`，随后重启涉及的服务。
+升级前备份 `config/targets.txt`、会话文件、原始帖子、AI / 链接数据以及清洗和日报数据库。SQLite 使用 backup API 或停服务后复制，完整保存主文件与 WAL 中的数据。服务单元有改动时重新安装并执行 `systemctl daemon-reload`，随后重启涉及的服务。
