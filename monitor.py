@@ -7,7 +7,7 @@ import logging
 import os
 import re
 import tempfile
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from twscrape import API
@@ -133,6 +133,92 @@ async def poll(api: API, username: str, limit: int, output: Path, seen: set[int]
     return len(fresh)
 
 
+def queue_ready_at(accounts, queue: str, now: datetime) -> datetime | None:
+    """Read queue locks without acquiring an account or making an X request."""
+    active = [account for account in accounts if account.active]
+    if not active:
+        raise NoAccountError("No active X login session")
+    deadlines = []
+    for account in active:
+        locked_until = account.locks.get(queue)
+        if locked_until is None:
+            return None
+        if locked_until.tzinfo is None:
+            locked_until = locked_until.replace(tzinfo=timezone.utc)
+        # twscrape compares second-resolution timestamps using a strict '<'.
+        ready_at = locked_until + timedelta(seconds=2)
+        if ready_at <= now:
+            return None
+        deadlines.append(ready_at)
+    return min(deadlines)
+
+
+def set_queue_wait(status: dict, names: list[str], queue: str,
+                   retry_at: datetime | None, status_path: Path) -> None:
+    changed = False
+    for name in names:
+        key = name.lower()
+        previous = status.get(key, {})
+        current = dict(previous)
+        if retry_at is not None:
+            current.update(state="waiting", wait_queue=queue,
+                           retry_at=retry_at.isoformat(), error=None)
+        elif current.get("state") == "waiting" and current.get("wait_queue") == queue:
+            current["state"] = "pending"
+            current.pop("wait_queue", None)
+            current.pop("retry_at", None)
+        if current != previous:
+            status[key] = current
+            changed = True
+    if changed:
+        save_status(status_path, status)
+
+
+async def wait_for_queue(pool, queue: str, status: dict, pending: list[str],
+                         status_path: Path, is_monitored=lambda: True) -> bool:
+    """Wait for a shared queue, rechecking only the local session pool."""
+    announced = None
+    while is_monitored():
+        now = datetime.now(timezone.utc)
+        ready_at = queue_ready_at(await pool.get_all(), queue, now)
+        if ready_at is None:
+            set_queue_wait(status, pending, queue, None, status_path)
+            if announced is not None:
+                logging.info("X queue %s available; resuming pending accounts", queue)
+            return True
+        set_queue_wait(status, pending, queue, ready_at, status_path)
+        if ready_at != announced:
+            logging.info("X queue %s waiting until %s; automatic resume scheduled",
+                         queue, ready_at.astimezone().strftime("%Y-%m-%d %H:%M:%S"))
+            announced = ready_at
+        # Local checks also notice newly added sessions and removed targets.
+        await asyncio.sleep(min(30, max(0.1, (ready_at - now).total_seconds())))
+    return False
+
+
+async def poll_with_wait(api: API, username: str, limit: int, output: Path,
+                         seen: set[int], status: dict, pending: list[str],
+                         status_path: Path, is_monitored=lambda: True) -> int | None:
+    queues = ["SearchTimeline"] if output.exists() else ["UserByScreenName", "UserTweets"]
+    while is_monitored():
+        for queue in queues:
+            if not await wait_for_queue(api.pool, queue, status, pending,
+                                        status_path, is_monitored):
+                return None
+        try:
+            return await poll(api, username, limit, output, seen)
+        except NoAccountError as error:
+            # A queue can exhaust its quota during pagination, after the preflight.
+            match = re.search(r"queue\s+[\"']?(\w+)", str(error))
+            queue = match.group(1) if match else queues[-1]
+            if not await wait_for_queue(api.pool, queue, status, pending,
+                                        status_path, is_monitored):
+                return None
+            # Avoid a hot retry loop if another worker wins the account lock.
+            await asyncio.sleep(2)
+    return None
+
+
 async def main() -> None:
     parser = argparse.ArgumentParser(description="Monitor new posts from an X account")
     parser.add_argument("--username", action="append", default=[], help="Account to monitor; repeatable")
@@ -152,8 +238,8 @@ async def main() -> None:
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     logging.getLogger("httpx").setLevel(logging.WARNING)
-    api = API(str(args.db), raise_when_no_account=True, wait_timeout=60)
-    if not any(account.active for account in await api.pool.get_all()):
+    api = API(str(args.db), raise_when_no_account=True)
+    if args.once and not any(account.active for account in await api.pool.get_all()):
         parser.error(f"No active X account in {args.db}; add cookies with twscrape first")
 
     seen_by_output: dict[Path, set[int]] = {}
@@ -177,13 +263,26 @@ async def main() -> None:
             shift = cycle_number % len(usernames)
             usernames = usernames[shift:] + usernames[:shift]
         cycle_number += 1
-        for username in usernames:
+        for index, username in enumerate(usernames):
             output = output_for(username, args.output_dir)
             try:
                 if output not in seen_by_output:
                     seen_by_output[output] = existing_ids(output)
                 seen = seen_by_output[output]
-                new_count = await poll(api, username, args.limit, output, seen)
+                if args.once:
+                    new_count = await poll(api, username, args.limit, output, seen)
+                else:
+                    def is_monitored():
+                        return username.lower() in {
+                            name.lower() for name in targets(args.username, args.targets_file)
+                        }
+
+                    new_count = await poll_with_wait(
+                        api, username, args.limit, output, seen, status,
+                        usernames[index:], args.status, is_monitored,
+                    )
+                    if new_count is None:
+                        continue
                 status[username.lower()] = {
                     "checked_at": datetime.now(timezone.utc).isoformat(),
                     "new_count": new_count,
@@ -194,19 +293,30 @@ async def main() -> None:
                 status[username.lower()] = {
                     "checked_at": datetime.now(timezone.utc).isoformat(),
                     "new_count": 0,
-                    "error": f"{type(error).__name__}: {str(error)[:200]}",
+                    "error": ("X 登录会话不可用，请更新登录状态" if isinstance(error, NoAccountError) and not args.once
+                              else f"{type(error).__name__}: {str(error)[:200]}"),
                 }
                 save_status(args.status, status)
-                logging.exception("Check failed for @%s", username)
                 if args.once:
                     raise
                 if isinstance(error, NoAccountError):
-                    logging.warning("X rate limit reached; remaining accounts will resume next cycle")
+                    # This is a missing/expired session, not a temporary queue lock.
+                    for pending_name in usernames[index + 1:]:
+                        current = dict(status.get(pending_name.lower(), {}))
+                        current.update(state="error", error=status[username.lower()]["error"])
+                        current.pop("retry_at", None)
+                        current.pop("wait_queue", None)
+                        status[pending_name.lower()] = current
+                    save_status(args.status, status)
+                    logging.warning("No active X login session; check the session cookies")
                     break
+                logging.exception("Check failed for @%s", username)
         if args.once:
             break
         elapsed = asyncio.get_running_loop().time() - cycle_start
-        await asyncio.sleep(max(0, args.interval - elapsed))
+        # After a long cooldown, give the completed cycle a full interval before
+        # starting again instead of immediately spending the fresh quota.
+        await asyncio.sleep(args.interval if elapsed >= args.interval else args.interval - elapsed)
 
 
 if __name__ == "__main__":

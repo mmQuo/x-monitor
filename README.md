@@ -54,6 +54,8 @@ New records also save X's short URL and expanded URL from tweet entities. Histor
 
 The deployment units are in `deploy/systemd/`. They assume this directory is `/srv/x-monitor` and use separate `xmonitorweb` and `xmonitorai` service users. Adjust paths and permissions for another host. The monitor checks every 300 seconds; inspect it with `systemctl status x-monitor-monitor.service` or `journalctl -u x-monitor-monitor.service -f`.
 
+共享登录会话的接口额度暂不可用时，后台读取本地会话池的恢复时间，等待至额度恢复后继续当前账号和本轮剩余账号。网页显示「等待恢复」及预计恢复时间，保留上次检查结果；等待期间每 30 秒检查本地状态，可识别新增登录会话和已移除的监控账号。冷却时间较长时，本轮完成后间隔 5 分钟再开始下一轮。登录会话失效会单独显示异常。`--once` 用于单次检查，接口不可用时直接返回错误。
+
 ## Web dashboard
 
 The password protected dashboard runs as `x-monitor-web.service` on `127.0.0.1:8765`. Put an HTTPS reverse proxy in front of it; secure cookies require HTTPS. It manages monitored usernames through `config/targets.txt` and displays saved posts and per-account check status. Adding, editing or removing a username takes effect on the next polling cycle. Removing an account leaves its historical JSONL file intact.
