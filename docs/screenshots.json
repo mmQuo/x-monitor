@@ -1,5 +1,5 @@
 {
-  "captured_at": "2026-10-23T21:44:51+08:00",
+  "captured_at": "2026-10-23T23:04:31+08:00",
   "timezone": "Asia/Shanghai",
   "source": "Saved X posts, AI annotations and daily reports",
   "report_date": "2026-10-22",
@@ -9,17 +9,17 @@
       "route": "/",
       "viewport": {
         "width": 1440,
-        "height": 1000
+        "height": 1080
       },
       "rendered_items": 100,
-      "fully_visible_feed_rows": 11
+      "fully_visible_feed_rows": 12
     },
     {
       "file": "daily-desktop.png",
       "route": "/reports?date=2026-10-22",
       "viewport": {
         "width": 1440,
-        "height": 1100
+        "height": 1080
       },
       "rendered_items": 10
     }
