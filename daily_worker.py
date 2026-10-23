@@ -222,14 +222,21 @@ class Workflow:
         if len((instruction + content).encode("utf-8")) > PROMPT_BYTES:
             raise WorkflowError("处理材料超过上下文限制，请检查分批设置")
         last_error = "模型请求失败"
+        body = {"model": MODEL, "messages": [
+            {"role": "system", "content": instruction},
+            {"role": "user", "content": content}],
+            "temperature": 0.1, "max_tokens": 7000}
+        # DeepSeek defaults to extended reasoning, which consumes the same output
+        # budget as the JSON and caused extraction to truncate and repeat batches.
+        # Keep reasoning for the final source check; earlier passes are mechanical.
+        if "deepseek" in MODEL.lower() and key.startswith(("extract:", "select:")):
+            body["thinking"] = {"type": "disabled"}
         for attempt in range(3):
+            started = time.monotonic()
             try:
                 response = self.client.post(f"{BASE_URL}/chat/completions",
                     headers={"Authorization": f"Bearer {API_KEY}"},
-                    json={"model": MODEL, "messages": [
-                        {"role": "system", "content": instruction},
-                        {"role": "user", "content": content}],
-                        "temperature": 0.1, "max_tokens": 7000}, timeout=150)
+                    json=body, timeout=150)
                 if response.is_error:
                     last_error = f"模型接口返回 HTTP {response.status_code}"
                     if response.status_code in (400, 401, 403, 404):
@@ -244,6 +251,7 @@ class Workflow:
                     raw = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw, flags=re.I)
                     checked = validate(json.loads(raw))
                     self.store.save_step(self.run_id, key, checked)
+                    logging.info("Daily report %s step %s completed in %.1fs", self.run_id, key, time.monotonic() - started)
                     return checked
             except OutputLimitError:
                 raise
@@ -311,7 +319,7 @@ class Workflow:
         def extract(index, group):
             return self.extract_group(f"extract:{index}", job["day"], group)
         # Two independent batches at a time; the translation worker retains its own client.
-        for result in self.parallel("提取事件", groups, extract):
+        for result in self.parallel("整理推文（1/3）", groups, extract):
             candidates.extend(result["events"])
             ignored.update(result["ignored_ids"])
         candidate_count = len(candidates)
@@ -326,7 +334,7 @@ class Workflow:
                 return self.call(f"select:{level}:{index}", SELECT.replace("LIMIT", str(limit)),
                                    {"day": job["day"], "events": group},
                                    lambda v: select_schema(v, ids, limit))
-            selected = self.parallel(f"归并并选择重点 · 第 {level + 1} 轮", chunks, select)
+            selected = self.parallel(f"筛选重点（2/3）· 第 {level + 1} 轮", chunks, select)
             candidates = [event for result in selected for event in result["events"]]
             if final:
                 break
@@ -349,7 +357,7 @@ class Workflow:
                     return {"event": None}
                 return {"event": event_schema(value["event"], ids, timeline=True)}
             return self.call(f"verify:{index}", VERIFY, {"candidate": candidate, "sources": evidence}, validate)["event"]
-        for event in self.parallel("核对原帖并撰写日报", candidates, verify):
+        for event in self.parallel("核对并成稿（3/3）", candidates, verify):
             if event is None:
                 dropped += 1
                 continue

@@ -134,6 +134,40 @@ class DailyTests(unittest.TestCase):
         flow.extract_group("extract:0", "2026-01-02", group)
         self.assertEqual(seen, [["1", "2"], ["1"], ["2"], ["1"], ["2"]])
 
+    def test_reasoning_is_reserved_for_verification_and_other_models_unchanged(self):
+        sent = []
+        def post(url, **kwargs):
+            sent.append(kwargs["json"])
+            class Response:
+                is_error = False
+                def json(self):
+                    return {"choices": [{"finish_reason": "stop", "message": {"content": '{"ok":true}'}}]}
+            return Response()
+        class Client:
+            pass
+        client = Client()
+        client.post = post
+        run_id = self.store.enqueue("2026-01-02")
+        flow = worker.Workflow(self.store, run_id, client)
+        with patch.object(worker, "MODEL", "go-deepseek-v4.1-flash"):
+            for key in ("extract:0", "extract:0:missing:0", "select:0:0", "verify:0"):
+                flow.call(key, "Return JSON", {}, lambda v: v)
+        self.assertTrue(all(body["thinking"] == {"type": "disabled"} for body in sent[:3]))
+        self.assertNotIn("thinking", sent[3])
+        with patch.object(worker, "MODEL", "another-model"):
+            flow.call("extract:1", "Return JSON", {}, lambda v: v)
+        self.assertNotIn("thinking", sent[4])
+
+    def test_partial_checkpoint_updates_progress_without_resetting_stage(self):
+        run_id = self.store.enqueue("2026-01-02")
+        self.store.claim()
+        self.store.progress(run_id, "整理推文（1/3）", 2, 8)
+        with patch("report_store.now_iso", return_value="2026-01-03T01:02:03+00:00"):
+            self.store.save_step(run_id, "extract:2:missing:0", {"events": []})
+        state = self.store.status("2026-01-02")
+        self.assertEqual(state["updated_at"], "2026-01-03T01:02:03+00:00")
+        self.assertEqual((state["stage"], state["done"], state["total"]), ("整理推文（1/3）", 2, 8))
+
     def test_long_post_tail_can_be_selected_and_linked_back_to_original(self):
         self.write_posts([self.post(1, "2026-01-02T01:00:00+00:00", "intro " * 1000 + "TAIL launch announced")])
         run_id = self.store.enqueue("2026-01-02")
@@ -221,6 +255,14 @@ class DailyTests(unittest.TestCase):
             self.assertEqual(client.post("/reports/generate", data={"date": "2026-01-02", "csrf_token": "csrf-test"}).status_code, 302)
             self.assertEqual(client.get("/reports?date=../../secret").status_code, 400)
             run_id = self.store.latest("2026-01-02")["id"]
+            self.store.claim()
+            self.store.progress(run_id, "整理推文（1/3）", 0, 2)
+            pending = client.get("/reports/status?date=2026-01-02").get_json()
+            self.assertIn('data-report-started=', pending["content"])
+            self.assertIn('最近进展', pending["content"])
+            self.assertEqual(client.get("/reports/status?date=2026-01-02").get_json()["revision"], pending["revision"])
+            self.store.save_step(run_id, "extract:0", {"events": []})
+            self.assertNotEqual(client.get("/reports/status?date=2026-01-02").get_json()["revision"], pending["revision"])
             source = {"id": "1", "username": "tibo", "created_at": "2026-01-02T12:00:00+08:00",
                       "url": "https://x.com/tibo/status/1", "text": '<script>alert("xss")</script>'}
             item = event(["1"], '<script>alert("title")</script>')

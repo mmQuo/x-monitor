@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}日报 · 推文监控{% endblock %}
 {% block header_status %}<span class="report-schedule">每天 08:00 生成前一天的日报 · 北京时间</span>{% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='reports.js', v='1') }}" defer></script>{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='reports.js', v='4') }}" defer></script>{% endblock %}
 {% block content %}
 {% for category, message in get_flashed_messages(with_categories=true) %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
 <div class="report-workspace" data-report-day="{{ day }}">

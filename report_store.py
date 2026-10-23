@@ -178,6 +178,7 @@ class ReportStore:
     def save_step(self, run_id, key, result):
         with self.connect() as db:
             db.execute("INSERT OR REPLACE INTO steps VALUES (?,?,?)", (run_id, key, encode(result)))
+            db.execute("UPDATE runs SET updated_at=? WHERE id=?", (now_iso(), run_id))
 
     def usage(self, run_id, usage):
         def count(key):

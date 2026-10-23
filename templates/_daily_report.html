@@ -13,7 +13,7 @@
   </div>
 </div>
 {% if running %}
-<div class="report-progress" role="status" aria-live="polite"><span class="report-dot"></span><span>{{ latest.stage }}{% if latest.total %} · {{ latest.done }} / {{ latest.total }}{% endif %}</span><span class="report-progress-note">可以离开页面，完成后自动保存</span></div>
+<div class="report-progress" role="status" aria-live="polite"><span class="report-dot"></span><span>{{ latest.stage }}{% if latest.total %} · {{ latest.done }} / {{ latest.total }}{% endif %}</span><span class="report-progress-note" aria-live="off">已用 <span data-report-started="{{ latest.created_at }}">{{ latest.created_at|reportelapsed }}</span> · 最近进展 {{ latest.updated_at|reporttime('%H:%M:%S') }}</span></div>
 {% elif latest and latest.status == 'failed' %}
 <div class="report-error" role="alert">{{ latest.error }}。{% if edition %}下方显示上一份已完成的日报。{% else %}已完成的处理步骤会保留。{% endif %}</div>
 {% endif %}

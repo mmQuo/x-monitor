@@ -33,6 +33,12 @@ def report_time(value, format="%m-%d %H:%M"):
     return datetime.fromisoformat(value).astimezone(TZ).strftime(format) if value else "—"
 
 
+@reports.app_template_filter("reportelapsed")
+def report_elapsed(value):
+    seconds = max(0, int((datetime.now(TZ) - datetime.fromisoformat(value)).total_seconds()))
+    return f"{seconds // 60} 分 {seconds % 60:02d} 秒"
+
+
 def context(store, day):
     latest = store.latest(day)
     edition = latest if latest and latest["status"] == "complete" else store.latest(day, completed=True)
@@ -77,7 +83,9 @@ def generate():
 def status():
     data = context(ReportStore(), selected_day())
     return jsonify({"content": render_template("_daily_report.html", **data),
-                    "history": render_template("_report_history.html", **data)})
+                    "history": render_template("_report_history.html", **data),
+                    "revision": encode({"updated": (data["latest"] or {}).get("updated_at"),
+                                        "history": data["history"]})})
 
 
 @reports.get("/reports/stream")
