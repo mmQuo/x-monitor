@@ -1,0 +1,3100 @@
+{
+  "source": "Country labels: Natural Earth, public domain. https://www.naturalearthdata.com/about/terms-of-use/; cities and regions: curated representative coordinates.",
+  "places": [
+    {
+      "id": "FJI",
+      "name": "斐济",
+      "level": "country",
+      "coordinates": [
+        177.975427,
+        -17.826099
+      ],
+      "aliases": [
+        "Fiji",
+        "斐济"
+      ]
+    },
+    {
+      "id": "TZA",
+      "name": "坦桑尼亚",
+      "level": "country",
+      "coordinates": [
+        34.959183,
+        -6.051866
+      ],
+      "aliases": [
+        "Tanzania",
+        "坦桑尼亚",
+        "United Republic of Tanzania"
+      ]
+    },
+    {
+      "id": "SAH",
+      "name": "西撒哈拉",
+      "level": "country",
+      "coordinates": [
+        -12.630304,
+        23.967592
+      ],
+      "aliases": [
+        "W. Sahara",
+        "Western Sahara",
+        "西撒哈拉"
+      ]
+    },
+    {
+      "id": "CAN",
+      "name": "加拿大",
+      "level": "country",
+      "coordinates": [
+        -101.9107,
+        60.324287
+      ],
+      "aliases": [
+        "Canada",
+        "加拿大"
+      ]
+    },
+    {
+      "id": "USA",
+      "name": "美国",
+      "level": "country",
+      "coordinates": [
+        -97.482602,
+        39.538479
+      ],
+      "aliases": [
+        "United States of America",
+        "美国",
+        "United States",
+        "U.S.",
+        "U.S.A.",
+        "US",
+        "USA"
+      ]
+    },
+    {
+      "id": "KAZ",
+      "name": "哈萨克斯坦",
+      "level": "country",
+      "coordinates": [
+        68.685548,
+        49.054149
+      ],
+      "aliases": [
+        "Kazakhstan",
+        "哈萨克斯坦"
+      ]
+    },
+    {
+      "id": "UZB",
+      "name": "乌兹别克斯坦",
+      "level": "country",
+      "coordinates": [
+        64.005429,
+        41.693603
+      ],
+      "aliases": [
+        "Uzbekistan",
+        "乌兹别克斯坦"
+      ]
+    },
+    {
+      "id": "PNG",
+      "name": "巴布亚新几内亚",
+      "level": "country",
+      "coordinates": [
+        143.910216,
+        -5.695285
+      ],
+      "aliases": [
+        "Papua New Guinea",
+        "巴布亚新几内亚"
+      ]
+    },
+    {
+      "id": "IDN",
+      "name": "印度尼西亚",
+      "level": "country",
+      "coordinates": [
+        101.892949,
+        -0.954404
+      ],
+      "aliases": [
+        "Indonesia",
+        "印度尼西亚"
+      ]
+    },
+    {
+      "id": "ARG",
+      "name": "阿根廷",
+      "level": "country",
+      "coordinates": [
+        -64.173331,
+        -33.501159
+      ],
+      "aliases": [
+        "Argentina",
+        "阿根廷"
+      ]
+    },
+    {
+      "id": "CHL",
+      "name": "智利",
+      "level": "country",
+      "coordinates": [
+        -72.318871,
+        -38.151771
+      ],
+      "aliases": [
+        "Chile",
+        "智利"
+      ]
+    },
+    {
+      "id": "COD",
+      "name": "刚果民主共和国",
+      "level": "country",
+      "coordinates": [
+        23.458829,
+        -1.858167
+      ],
+      "aliases": [
+        "Dem. Rep. Congo",
+        "Democratic Republic of the Congo",
+        "刚果民主共和国"
+      ]
+    },
+    {
+      "id": "SOM",
+      "name": "索马里",
+      "level": "country",
+      "coordinates": [
+        45.19238,
+        3.568925
+      ],
+      "aliases": [
+        "Somalia",
+        "索马里"
+      ]
+    },
+    {
+      "id": "KEN",
+      "name": "肯尼亚",
+      "level": "country",
+      "coordinates": [
+        37.907632,
+        0.549043
+      ],
+      "aliases": [
+        "Kenya",
+        "肯尼亚"
+      ]
+    },
+    {
+      "id": "SDN",
+      "name": "苏丹",
+      "level": "country",
+      "coordinates": [
+        29.260657,
+        16.330746
+      ],
+      "aliases": [
+        "Sudan",
+        "苏丹"
+      ]
+    },
+    {
+      "id": "TCD",
+      "name": "乍得",
+      "level": "country",
+      "coordinates": [
+        18.645041,
+        15.142959
+      ],
+      "aliases": [
+        "Chad",
+        "乍得"
+      ]
+    },
+    {
+      "id": "HTI",
+      "name": "海地",
+      "level": "country",
+      "coordinates": [
+        -72.224051,
+        19.263784
+      ],
+      "aliases": [
+        "Haiti",
+        "海地"
+      ]
+    },
+    {
+      "id": "DOM",
+      "name": "多米尼加",
+      "level": "country",
+      "coordinates": [
+        -70.653998,
+        19.104137
+      ],
+      "aliases": [
+        "Dominican Rep.",
+        "Dominican Republic",
+        "多米尼加"
+      ]
+    },
+    {
+      "id": "RUS",
+      "name": "俄罗斯",
+      "level": "country",
+      "coordinates": [
+        44.686469,
+        58.249357
+      ],
+      "aliases": [
+        "Russia",
+        "俄罗斯"
+      ]
+    },
+    {
+      "id": "BHS",
+      "name": "巴哈马",
+      "level": "country",
+      "coordinates": [
+        -77.146688,
+        26.401789
+      ],
+      "aliases": [
+        "Bahamas",
+        "The Bahamas",
+        "巴哈马"
+      ]
+    },
+    {
+      "id": "FLK",
+      "name": "福克兰群岛",
+      "level": "country",
+      "coordinates": [
+        -58.738602,
+        -51.608913
+      ],
+      "aliases": [
+        "Falkland Is.",
+        "Falkland Islands",
+        "福克兰群岛"
+      ]
+    },
+    {
+      "id": "NOR",
+      "name": "挪威",
+      "level": "country",
+      "coordinates": [
+        9.679975,
+        61.357092
+      ],
+      "aliases": [
+        "Norway",
+        "挪威"
+      ]
+    },
+    {
+      "id": "GRL",
+      "name": "格陵兰",
+      "level": "country",
+      "coordinates": [
+        -39.335251,
+        74.319387
+      ],
+      "aliases": [
+        "Greenland",
+        "格陵兰"
+      ]
+    },
+    {
+      "id": "ATF",
+      "name": "法属南部和南极领地",
+      "level": "country",
+      "coordinates": [
+        69.122136,
+        -49.303721
+      ],
+      "aliases": [
+        "Fr. S. Antarctic Lands",
+        "French Southern and Antarctic Lands",
+        "法属南部和南极领地"
+      ]
+    },
+    {
+      "id": "TLS",
+      "name": "东帝汶",
+      "level": "country",
+      "coordinates": [
+        125.854679,
+        -8.803705
+      ],
+      "aliases": [
+        "Timor-Leste",
+        "East Timor",
+        "东帝汶"
+      ]
+    },
+    {
+      "id": "ZAF",
+      "name": "南非",
+      "level": "country",
+      "coordinates": [
+        23.665734,
+        -29.708776
+      ],
+      "aliases": [
+        "South Africa",
+        "南非"
+      ]
+    },
+    {
+      "id": "LSO",
+      "name": "莱索托",
+      "level": "country",
+      "coordinates": [
+        28.246639,
+        -29.480158
+      ],
+      "aliases": [
+        "Lesotho",
+        "莱索托"
+      ]
+    },
+    {
+      "id": "MEX",
+      "name": "墨西哥",
+      "level": "country",
+      "coordinates": [
+        -102.289448,
+        23.919988
+      ],
+      "aliases": [
+        "Mexico",
+        "墨西哥"
+      ]
+    },
+    {
+      "id": "URY",
+      "name": "乌拉圭",
+      "level": "country",
+      "coordinates": [
+        -55.966942,
+        -32.961127
+      ],
+      "aliases": [
+        "Uruguay",
+        "乌拉圭"
+      ]
+    },
+    {
+      "id": "BRA",
+      "name": "巴西",
+      "level": "country",
+      "coordinates": [
+        -49.55945,
+        -12.098687
+      ],
+      "aliases": [
+        "Brazil",
+        "巴西"
+      ]
+    },
+    {
+      "id": "BOL",
+      "name": "玻利维亚",
+      "level": "country",
+      "coordinates": [
+        -64.593433,
+        -16.666015
+      ],
+      "aliases": [
+        "Bolivia",
+        "玻利维亚"
+      ]
+    },
+    {
+      "id": "PER",
+      "name": "秘鲁",
+      "level": "country",
+      "coordinates": [
+        -72.90016,
+        -12.976679
+      ],
+      "aliases": [
+        "Peru",
+        "秘鲁"
+      ]
+    },
+    {
+      "id": "COL",
+      "name": "哥伦比亚",
+      "level": "country",
+      "coordinates": [
+        -73.174347,
+        3.373111
+      ],
+      "aliases": [
+        "Colombia",
+        "哥伦比亚"
+      ]
+    },
+    {
+      "id": "PAN",
+      "name": "巴拿马",
+      "level": "country",
+      "coordinates": [
+        -80.352106,
+        8.72198
+      ],
+      "aliases": [
+        "Panama",
+        "巴拿马"
+      ]
+    },
+    {
+      "id": "CRI",
+      "name": "哥斯达黎加",
+      "level": "country",
+      "coordinates": [
+        -84.077922,
+        10.0651
+      ],
+      "aliases": [
+        "Costa Rica",
+        "哥斯达黎加"
+      ]
+    },
+    {
+      "id": "NIC",
+      "name": "尼加拉瓜",
+      "level": "country",
+      "coordinates": [
+        -85.069347,
+        12.670697
+      ],
+      "aliases": [
+        "Nicaragua",
+        "尼加拉瓜"
+      ]
+    },
+    {
+      "id": "HND",
+      "name": "洪都拉斯",
+      "level": "country",
+      "coordinates": [
+        -86.887604,
+        14.794801
+      ],
+      "aliases": [
+        "Honduras",
+        "洪都拉斯"
+      ]
+    },
+    {
+      "id": "SLV",
+      "name": "萨尔瓦多",
+      "level": "country",
+      "coordinates": [
+        -88.890124,
+        13.685371
+      ],
+      "aliases": [
+        "El Salvador",
+        "萨尔瓦多"
+      ]
+    },
+    {
+      "id": "GTM",
+      "name": "危地马拉",
+      "level": "country",
+      "coordinates": [
+        -90.497134,
+        14.982133
+      ],
+      "aliases": [
+        "Guatemala",
+        "危地马拉"
+      ]
+    },
+    {
+      "id": "BLZ",
+      "name": "伯利兹",
+      "level": "country",
+      "coordinates": [
+        -88.712962,
+        17.202068
+      ],
+      "aliases": [
+        "Belize",
+        "伯利兹"
+      ]
+    },
+    {
+      "id": "VEN",
+      "name": "委内瑞拉",
+      "level": "country",
+      "coordinates": [
+        -64.599381,
+        7.182476
+      ],
+      "aliases": [
+        "Venezuela",
+        "委内瑞拉"
+      ]
+    },
+    {
+      "id": "GUY",
+      "name": "圭亚那",
+      "level": "country",
+      "coordinates": [
+        -58.942643,
+        5.124317
+      ],
+      "aliases": [
+        "Guyana",
+        "圭亚那"
+      ]
+    },
+    {
+      "id": "SUR",
+      "name": "苏里南",
+      "level": "country",
+      "coordinates": [
+        -55.91094,
+        4.143987
+      ],
+      "aliases": [
+        "Suriname",
+        "苏里南"
+      ]
+    },
+    {
+      "id": "FRA",
+      "name": "法国",
+      "level": "country",
+      "coordinates": [
+        2.552275,
+        46.696113
+      ],
+      "aliases": [
+        "France",
+        "法国"
+      ]
+    },
+    {
+      "id": "ECU",
+      "name": "厄瓜多尔",
+      "level": "country",
+      "coordinates": [
+        -78.188375,
+        -1.259076
+      ],
+      "aliases": [
+        "Ecuador",
+        "厄瓜多尔"
+      ]
+    },
+    {
+      "id": "PRI",
+      "name": "波多黎各",
+      "level": "country",
+      "coordinates": [
+        -66.481065,
+        18.234668
+      ],
+      "aliases": [
+        "Puerto Rico",
+        "波多黎各"
+      ]
+    },
+    {
+      "id": "JAM",
+      "name": "牙买加",
+      "level": "country",
+      "coordinates": [
+        -77.318767,
+        18.137124
+      ],
+      "aliases": [
+        "Jamaica",
+        "牙买加"
+      ]
+    },
+    {
+      "id": "CUB",
+      "name": "古巴",
+      "level": "country",
+      "coordinates": [
+        -77.975855,
+        21.334024
+      ],
+      "aliases": [
+        "Cuba",
+        "古巴"
+      ]
+    },
+    {
+      "id": "ZWE",
+      "name": "津巴布韦",
+      "level": "country",
+      "coordinates": [
+        29.925444,
+        -18.91164
+      ],
+      "aliases": [
+        "Zimbabwe",
+        "津巴布韦"
+      ]
+    },
+    {
+      "id": "BWA",
+      "name": "博茨瓦纳",
+      "level": "country",
+      "coordinates": [
+        24.179216,
+        -22.102634
+      ],
+      "aliases": [
+        "Botswana",
+        "博茨瓦纳"
+      ]
+    },
+    {
+      "id": "NAM",
+      "name": "纳米比亚",
+      "level": "country",
+      "coordinates": [
+        17.108166,
+        -20.575298
+      ],
+      "aliases": [
+        "Namibia",
+        "纳米比亚"
+      ]
+    },
+    {
+      "id": "SEN",
+      "name": "塞内加尔",
+      "level": "country",
+      "coordinates": [
+        -14.778586,
+        15.138125
+      ],
+      "aliases": [
+        "Senegal",
+        "塞内加尔"
+      ]
+    },
+    {
+      "id": "MLI",
+      "name": "马里",
+      "level": "country",
+      "coordinates": [
+        -2.038455,
+        18.692713
+      ],
+      "aliases": [
+        "Mali",
+        "马里"
+      ]
+    },
+    {
+      "id": "MRT",
+      "name": "毛里塔尼亚",
+      "level": "country",
+      "coordinates": [
+        -9.740299,
+        19.587062
+      ],
+      "aliases": [
+        "Mauritania",
+        "毛里塔尼亚"
+      ]
+    },
+    {
+      "id": "BEN",
+      "name": "贝宁",
+      "level": "country",
+      "coordinates": [
+        2.352018,
+        10.324775
+      ],
+      "aliases": [
+        "Benin",
+        "贝宁"
+      ]
+    },
+    {
+      "id": "NER",
+      "name": "尼日尔",
+      "level": "country",
+      "coordinates": [
+        9.504356,
+        17.446195
+      ],
+      "aliases": [
+        "Niger",
+        "尼日尔"
+      ]
+    },
+    {
+      "id": "NGA",
+      "name": "尼日利亚",
+      "level": "country",
+      "coordinates": [
+        7.50322,
+        9.439799
+      ],
+      "aliases": [
+        "Nigeria",
+        "尼日利亚"
+      ]
+    },
+    {
+      "id": "CMR",
+      "name": "喀麦隆",
+      "level": "country",
+      "coordinates": [
+        12.473488,
+        4.585041
+      ],
+      "aliases": [
+        "Cameroon",
+        "喀麦隆"
+      ]
+    },
+    {
+      "id": "TGO",
+      "name": "多哥",
+      "level": "country",
+      "coordinates": [
+        1.058113,
+        8.80722
+      ],
+      "aliases": [
+        "Togo",
+        "多哥"
+      ]
+    },
+    {
+      "id": "GHA",
+      "name": "加纳",
+      "level": "country",
+      "coordinates": [
+        -1.036941,
+        7.717639
+      ],
+      "aliases": [
+        "Ghana",
+        "加纳"
+      ]
+    },
+    {
+      "id": "CIV",
+      "name": "科特迪瓦",
+      "level": "country",
+      "coordinates": [
+        -5.568618,
+        7.49139
+      ],
+      "aliases": [
+        "Côte d'Ivoire",
+        "Ivory Coast",
+        "科特迪瓦"
+      ]
+    },
+    {
+      "id": "GIN",
+      "name": "几内亚",
+      "level": "country",
+      "coordinates": [
+        -10.016402,
+        10.618516
+      ],
+      "aliases": [
+        "Guinea",
+        "几内亚"
+      ]
+    },
+    {
+      "id": "GNB",
+      "name": "几内亚比绍",
+      "level": "country",
+      "coordinates": [
+        -14.52413,
+        12.163712
+      ],
+      "aliases": [
+        "Guinea-Bissau",
+        "几内亚比绍"
+      ]
+    },
+    {
+      "id": "LBR",
+      "name": "利比里亚",
+      "level": "country",
+      "coordinates": [
+        -9.460379,
+        6.447177
+      ],
+      "aliases": [
+        "Liberia",
+        "利比里亚"
+      ]
+    },
+    {
+      "id": "SLE",
+      "name": "塞拉利昂",
+      "level": "country",
+      "coordinates": [
+        -11.763677,
+        8.617449
+      ],
+      "aliases": [
+        "Sierra Leone",
+        "塞拉利昂"
+      ]
+    },
+    {
+      "id": "BFA",
+      "name": "布基纳法索",
+      "level": "country",
+      "coordinates": [
+        -1.36388,
+        12.673048
+      ],
+      "aliases": [
+        "Burkina Faso",
+        "布基纳法索"
+      ]
+    },
+    {
+      "id": "CAF",
+      "name": "中非共和国",
+      "level": "country",
+      "coordinates": [
+        20.906897,
+        6.989681
+      ],
+      "aliases": [
+        "Central African Rep.",
+        "Central African Republic",
+        "中非共和国"
+      ]
+    },
+    {
+      "id": "COG",
+      "name": "刚果共和国",
+      "level": "country",
+      "coordinates": [
+        15.9005,
+        0.142331
+      ],
+      "aliases": [
+        "Congo",
+        "Republic of the Congo",
+        "刚果共和国"
+      ]
+    },
+    {
+      "id": "GAB",
+      "name": "加蓬",
+      "level": "country",
+      "coordinates": [
+        11.835939,
+        -0.437739
+      ],
+      "aliases": [
+        "Gabon",
+        "加蓬"
+      ]
+    },
+    {
+      "id": "GNQ",
+      "name": "赤道几内亚",
+      "level": "country",
+      "coordinates": [
+        8.9902,
+        2.333
+      ],
+      "aliases": [
+        "Eq. Guinea",
+        "Equatorial Guinea",
+        "赤道几内亚"
+      ]
+    },
+    {
+      "id": "ZMB",
+      "name": "赞比亚",
+      "level": "country",
+      "coordinates": [
+        26.395298,
+        -14.660804
+      ],
+      "aliases": [
+        "Zambia",
+        "赞比亚"
+      ]
+    },
+    {
+      "id": "MWI",
+      "name": "马拉维",
+      "level": "country",
+      "coordinates": [
+        33.608082,
+        -13.386737
+      ],
+      "aliases": [
+        "Malawi",
+        "马拉维"
+      ]
+    },
+    {
+      "id": "MOZ",
+      "name": "莫桑比克",
+      "level": "country",
+      "coordinates": [
+        37.83789,
+        -13.94323
+      ],
+      "aliases": [
+        "Mozambique",
+        "莫桑比克"
+      ]
+    },
+    {
+      "id": "SWZ",
+      "name": "斯威士兰",
+      "level": "country",
+      "coordinates": [
+        31.467264,
+        -26.533676
+      ],
+      "aliases": [
+        "eSwatini",
+        "Eswatini",
+        "斯威士兰"
+      ]
+    },
+    {
+      "id": "AGO",
+      "name": "安哥拉",
+      "level": "country",
+      "coordinates": [
+        17.984249,
+        -12.182762
+      ],
+      "aliases": [
+        "Angola",
+        "安哥拉"
+      ]
+    },
+    {
+      "id": "BDI",
+      "name": "布隆迪",
+      "level": "country",
+      "coordinates": [
+        29.917086,
+        -3.332836
+      ],
+      "aliases": [
+        "Burundi",
+        "布隆迪"
+      ]
+    },
+    {
+      "id": "ISR",
+      "name": "以色列",
+      "level": "country",
+      "coordinates": [
+        34.847915,
+        30.911148
+      ],
+      "aliases": [
+        "Israel",
+        "以色列"
+      ]
+    },
+    {
+      "id": "LBN",
+      "name": "黎巴嫩",
+      "level": "country",
+      "coordinates": [
+        35.992892,
+        34.133368
+      ],
+      "aliases": [
+        "Lebanon",
+        "黎巴嫩"
+      ]
+    },
+    {
+      "id": "MDG",
+      "name": "马达加斯加",
+      "level": "country",
+      "coordinates": [
+        46.704241,
+        -18.628288
+      ],
+      "aliases": [
+        "Madagascar",
+        "马达加斯加"
+      ]
+    },
+    {
+      "id": "PSX",
+      "name": "巴勒斯坦",
+      "level": "country",
+      "coordinates": [
+        35.291341,
+        32.047431
+      ],
+      "aliases": [
+        "Palestine",
+        "巴勒斯坦"
+      ]
+    },
+    {
+      "id": "GMB",
+      "name": "冈比亚",
+      "level": "country",
+      "coordinates": [
+        -14.998318,
+        13.641721
+      ],
+      "aliases": [
+        "Gambia",
+        "The Gambia",
+        "冈比亚"
+      ]
+    },
+    {
+      "id": "TUN",
+      "name": "突尼斯",
+      "level": "country",
+      "coordinates": [
+        9.007881,
+        33.687263
+      ],
+      "aliases": [
+        "Tunisia",
+        "突尼斯"
+      ]
+    },
+    {
+      "id": "DZA",
+      "name": "阿尔及利亚",
+      "level": "country",
+      "coordinates": [
+        2.808241,
+        27.397406
+      ],
+      "aliases": [
+        "Algeria",
+        "阿尔及利亚"
+      ]
+    },
+    {
+      "id": "JOR",
+      "name": "约旦",
+      "level": "country",
+      "coordinates": [
+        36.375991,
+        30.805025
+      ],
+      "aliases": [
+        "Jordan",
+        "约旦"
+      ]
+    },
+    {
+      "id": "ARE",
+      "name": "阿拉伯联合酋长国",
+      "level": "country",
+      "coordinates": [
+        54.547256,
+        23.466285
+      ],
+      "aliases": [
+        "United Arab Emirates",
+        "阿拉伯联合酋长国",
+        "UAE",
+        "阿联酋"
+      ]
+    },
+    {
+      "id": "QAT",
+      "name": "卡塔尔",
+      "level": "country",
+      "coordinates": [
+        51.143509,
+        25.237383
+      ],
+      "aliases": [
+        "Qatar",
+        "卡塔尔"
+      ]
+    },
+    {
+      "id": "KWT",
+      "name": "科威特",
+      "level": "country",
+      "coordinates": [
+        47.313999,
+        29.413628
+      ],
+      "aliases": [
+        "Kuwait",
+        "科威特"
+      ]
+    },
+    {
+      "id": "IRQ",
+      "name": "伊拉克",
+      "level": "country",
+      "coordinates": [
+        43.26181,
+        33.09403
+      ],
+      "aliases": [
+        "Iraq",
+        "伊拉克"
+      ]
+    },
+    {
+      "id": "OMN",
+      "name": "阿曼",
+      "level": "country",
+      "coordinates": [
+        57.336553,
+        22.120427
+      ],
+      "aliases": [
+        "Oman",
+        "阿曼"
+      ]
+    },
+    {
+      "id": "VUT",
+      "name": "瓦努阿图",
+      "level": "country",
+      "coordinates": [
+        166.908762,
+        -15.37153
+      ],
+      "aliases": [
+        "Vanuatu",
+        "瓦努阿图"
+      ]
+    },
+    {
+      "id": "KHM",
+      "name": "柬埔寨",
+      "level": "country",
+      "coordinates": [
+        104.50487,
+        12.647584
+      ],
+      "aliases": [
+        "Cambodia",
+        "柬埔寨"
+      ]
+    },
+    {
+      "id": "THA",
+      "name": "泰国",
+      "level": "country",
+      "coordinates": [
+        101.073198,
+        15.45974
+      ],
+      "aliases": [
+        "Thailand",
+        "泰国"
+      ]
+    },
+    {
+      "id": "LAO",
+      "name": "老挝",
+      "level": "country",
+      "coordinates": [
+        102.533912,
+        19.431821
+      ],
+      "aliases": [
+        "Laos",
+        "老挝"
+      ]
+    },
+    {
+      "id": "MMR",
+      "name": "缅甸",
+      "level": "country",
+      "coordinates": [
+        95.804497,
+        21.573855
+      ],
+      "aliases": [
+        "Myanmar",
+        "缅甸"
+      ]
+    },
+    {
+      "id": "VNM",
+      "name": "越南",
+      "level": "country",
+      "coordinates": [
+        105.387292,
+        21.715416
+      ],
+      "aliases": [
+        "Vietnam",
+        "越南"
+      ]
+    },
+    {
+      "id": "PRK",
+      "name": "朝鲜民主主义人民共和国",
+      "level": "country",
+      "coordinates": [
+        126.444516,
+        39.885252
+      ],
+      "aliases": [
+        "North Korea",
+        "朝鲜民主主义人民共和国",
+        "朝鲜"
+      ]
+    },
+    {
+      "id": "KOR",
+      "name": "大韩民国",
+      "level": "country",
+      "coordinates": [
+        128.129504,
+        36.384924
+      ],
+      "aliases": [
+        "South Korea",
+        "大韩民国",
+        "韩国"
+      ]
+    },
+    {
+      "id": "MNG",
+      "name": "蒙古国",
+      "level": "country",
+      "coordinates": [
+        104.150405,
+        45.997488
+      ],
+      "aliases": [
+        "Mongolia",
+        "蒙古国"
+      ]
+    },
+    {
+      "id": "IND",
+      "name": "印度",
+      "level": "country",
+      "coordinates": [
+        79.358105,
+        22.686852
+      ],
+      "aliases": [
+        "India",
+        "印度"
+      ]
+    },
+    {
+      "id": "BGD",
+      "name": "孟加拉国",
+      "level": "country",
+      "coordinates": [
+        89.684963,
+        24.214956
+      ],
+      "aliases": [
+        "Bangladesh",
+        "孟加拉国"
+      ]
+    },
+    {
+      "id": "BTN",
+      "name": "不丹",
+      "level": "country",
+      "coordinates": [
+        90.040294,
+        27.536685
+      ],
+      "aliases": [
+        "Bhutan",
+        "不丹"
+      ]
+    },
+    {
+      "id": "NPL",
+      "name": "尼泊尔",
+      "level": "country",
+      "coordinates": [
+        83.639914,
+        28.297925
+      ],
+      "aliases": [
+        "Nepal",
+        "尼泊尔"
+      ]
+    },
+    {
+      "id": "PAK",
+      "name": "巴基斯坦",
+      "level": "country",
+      "coordinates": [
+        68.545632,
+        29.328389
+      ],
+      "aliases": [
+        "Pakistan",
+        "巴基斯坦"
+      ]
+    },
+    {
+      "id": "AFG",
+      "name": "阿富汗",
+      "level": "country",
+      "coordinates": [
+        66.496586,
+        34.164262
+      ],
+      "aliases": [
+        "Afghanistan",
+        "阿富汗"
+      ]
+    },
+    {
+      "id": "TJK",
+      "name": "塔吉克斯坦",
+      "level": "country",
+      "coordinates": [
+        72.587276,
+        38.199835
+      ],
+      "aliases": [
+        "Tajikistan",
+        "塔吉克斯坦"
+      ]
+    },
+    {
+      "id": "KGZ",
+      "name": "吉尔吉斯斯坦",
+      "level": "country",
+      "coordinates": [
+        74.532637,
+        41.66854
+      ],
+      "aliases": [
+        "Kyrgyzstan",
+        "吉尔吉斯斯坦"
+      ]
+    },
+    {
+      "id": "TKM",
+      "name": "土库曼斯坦",
+      "level": "country",
+      "coordinates": [
+        58.676647,
+        39.855246
+      ],
+      "aliases": [
+        "Turkmenistan",
+        "土库曼斯坦"
+      ]
+    },
+    {
+      "id": "IRN",
+      "name": "伊朗",
+      "level": "country",
+      "coordinates": [
+        54.931495,
+        32.166225
+      ],
+      "aliases": [
+        "Iran",
+        "伊朗"
+      ]
+    },
+    {
+      "id": "SYR",
+      "name": "叙利亚",
+      "level": "country",
+      "coordinates": [
+        38.277783,
+        35.006636
+      ],
+      "aliases": [
+        "Syria",
+        "叙利亚"
+      ]
+    },
+    {
+      "id": "ARM",
+      "name": "亚美尼亚",
+      "level": "country",
+      "coordinates": [
+        44.800564,
+        40.459077
+      ],
+      "aliases": [
+        "Armenia",
+        "亚美尼亚"
+      ]
+    },
+    {
+      "id": "SWE",
+      "name": "瑞典",
+      "level": "country",
+      "coordinates": [
+        19.01705,
+        65.85918
+      ],
+      "aliases": [
+        "Sweden",
+        "瑞典"
+      ]
+    },
+    {
+      "id": "BLR",
+      "name": "白俄罗斯",
+      "level": "country",
+      "coordinates": [
+        28.417701,
+        53.821888
+      ],
+      "aliases": [
+        "Belarus",
+        "白俄罗斯"
+      ]
+    },
+    {
+      "id": "UKR",
+      "name": "乌克兰",
+      "level": "country",
+      "coordinates": [
+        32.140865,
+        49.724739
+      ],
+      "aliases": [
+        "Ukraine",
+        "乌克兰"
+      ]
+    },
+    {
+      "id": "POL",
+      "name": "波兰",
+      "level": "country",
+      "coordinates": [
+        19.490468,
+        51.990316
+      ],
+      "aliases": [
+        "Poland",
+        "波兰"
+      ]
+    },
+    {
+      "id": "AUT",
+      "name": "奥地利",
+      "level": "country",
+      "coordinates": [
+        14.130515,
+        47.518859
+      ],
+      "aliases": [
+        "Austria",
+        "奥地利"
+      ]
+    },
+    {
+      "id": "HUN",
+      "name": "匈牙利",
+      "level": "country",
+      "coordinates": [
+        19.447867,
+        47.086841
+      ],
+      "aliases": [
+        "Hungary",
+        "匈牙利"
+      ]
+    },
+    {
+      "id": "MDA",
+      "name": "摩尔多瓦",
+      "level": "country",
+      "coordinates": [
+        28.487904,
+        47.434999
+      ],
+      "aliases": [
+        "Moldova",
+        "摩尔多瓦"
+      ]
+    },
+    {
+      "id": "ROU",
+      "name": "罗马尼亚",
+      "level": "country",
+      "coordinates": [
+        24.972624,
+        45.733237
+      ],
+      "aliases": [
+        "Romania",
+        "罗马尼亚"
+      ]
+    },
+    {
+      "id": "LTU",
+      "name": "立陶宛",
+      "level": "country",
+      "coordinates": [
+        24.089932,
+        55.103703
+      ],
+      "aliases": [
+        "Lithuania",
+        "立陶宛"
+      ]
+    },
+    {
+      "id": "LVA",
+      "name": "拉脱维亚",
+      "level": "country",
+      "coordinates": [
+        25.458723,
+        57.066872
+      ],
+      "aliases": [
+        "Latvia",
+        "拉脱维亚"
+      ]
+    },
+    {
+      "id": "EST",
+      "name": "爱沙尼亚",
+      "level": "country",
+      "coordinates": [
+        25.867126,
+        58.724865
+      ],
+      "aliases": [
+        "Estonia",
+        "爱沙尼亚"
+      ]
+    },
+    {
+      "id": "DEU",
+      "name": "德国",
+      "level": "country",
+      "coordinates": [
+        9.678348,
+        50.961733
+      ],
+      "aliases": [
+        "Germany",
+        "德国"
+      ]
+    },
+    {
+      "id": "BGR",
+      "name": "保加利亚",
+      "level": "country",
+      "coordinates": [
+        25.15709,
+        42.508785
+      ],
+      "aliases": [
+        "Bulgaria",
+        "保加利亚"
+      ]
+    },
+    {
+      "id": "GRC",
+      "name": "希腊",
+      "level": "country",
+      "coordinates": [
+        21.72568,
+        39.492763
+      ],
+      "aliases": [
+        "Greece",
+        "希腊"
+      ]
+    },
+    {
+      "id": "TUR",
+      "name": "土耳其",
+      "level": "country",
+      "coordinates": [
+        34.508268,
+        39.345388
+      ],
+      "aliases": [
+        "Turkey",
+        "土耳其"
+      ]
+    },
+    {
+      "id": "ALB",
+      "name": "阿尔巴尼亚",
+      "level": "country",
+      "coordinates": [
+        20.11384,
+        40.654855
+      ],
+      "aliases": [
+        "Albania",
+        "阿尔巴尼亚"
+      ]
+    },
+    {
+      "id": "HRV",
+      "name": "克罗地亚",
+      "level": "country",
+      "coordinates": [
+        16.37241,
+        45.805799
+      ],
+      "aliases": [
+        "Croatia",
+        "克罗地亚"
+      ]
+    },
+    {
+      "id": "CHE",
+      "name": "瑞士",
+      "level": "country",
+      "coordinates": [
+        7.463965,
+        46.719114
+      ],
+      "aliases": [
+        "Switzerland",
+        "瑞士"
+      ]
+    },
+    {
+      "id": "LUX",
+      "name": "卢森堡",
+      "level": "country",
+      "coordinates": [
+        6.07762,
+        49.733732
+      ],
+      "aliases": [
+        "Luxembourg",
+        "卢森堡"
+      ]
+    },
+    {
+      "id": "BEL",
+      "name": "比利时",
+      "level": "country",
+      "coordinates": [
+        4.800448,
+        50.785392
+      ],
+      "aliases": [
+        "Belgium",
+        "比利时"
+      ]
+    },
+    {
+      "id": "NLD",
+      "name": "荷兰",
+      "level": "country",
+      "coordinates": [
+        5.61144,
+        52.422211
+      ],
+      "aliases": [
+        "Netherlands",
+        "荷兰"
+      ]
+    },
+    {
+      "id": "PRT",
+      "name": "葡萄牙",
+      "level": "country",
+      "coordinates": [
+        -8.271754,
+        39.606675
+      ],
+      "aliases": [
+        "Portugal",
+        "葡萄牙"
+      ]
+    },
+    {
+      "id": "ESP",
+      "name": "西班牙",
+      "level": "country",
+      "coordinates": [
+        -3.464718,
+        40.090953
+      ],
+      "aliases": [
+        "Spain",
+        "西班牙"
+      ]
+    },
+    {
+      "id": "IRL",
+      "name": "爱尔兰",
+      "level": "country",
+      "coordinates": [
+        -7.798588,
+        53.078726
+      ],
+      "aliases": [
+        "Ireland",
+        "爱尔兰"
+      ]
+    },
+    {
+      "id": "NCL",
+      "name": "新喀里多尼亚",
+      "level": "country",
+      "coordinates": [
+        165.084004,
+        -21.064697
+      ],
+      "aliases": [
+        "New Caledonia",
+        "新喀里多尼亚"
+      ]
+    },
+    {
+      "id": "SLB",
+      "name": "所罗门群岛",
+      "level": "country",
+      "coordinates": [
+        159.170468,
+        -8.029548
+      ],
+      "aliases": [
+        "Solomon Is.",
+        "Solomon Islands",
+        "所罗门群岛"
+      ]
+    },
+    {
+      "id": "NZL",
+      "name": "新西兰",
+      "level": "country",
+      "coordinates": [
+        172.787,
+        -39.759
+      ],
+      "aliases": [
+        "New Zealand",
+        "新西兰"
+      ]
+    },
+    {
+      "id": "AUS",
+      "name": "澳大利亚",
+      "level": "country",
+      "coordinates": [
+        134.04972,
+        -24.129522
+      ],
+      "aliases": [
+        "Australia",
+        "澳大利亚"
+      ]
+    },
+    {
+      "id": "LKA",
+      "name": "斯里兰卡",
+      "level": "country",
+      "coordinates": [
+        80.704823,
+        7.581097
+      ],
+      "aliases": [
+        "Sri Lanka",
+        "斯里兰卡"
+      ]
+    },
+    {
+      "id": "CHN",
+      "name": "中国",
+      "level": "country",
+      "coordinates": [
+        106.337289,
+        32.498178
+      ],
+      "aliases": [
+        "China",
+        "People's Republic of China",
+        "中华人民共和国",
+        "中国",
+        "PRC"
+      ]
+    },
+    {
+      "id": "TWN",
+      "name": "中华民国",
+      "level": "country",
+      "coordinates": [
+        120.868204,
+        23.652408
+      ],
+      "aliases": [
+        "Taiwan",
+        "中华民国",
+        "台湾"
+      ]
+    },
+    {
+      "id": "ITA",
+      "name": "意大利",
+      "level": "country",
+      "coordinates": [
+        11.076907,
+        44.732482
+      ],
+      "aliases": [
+        "Italy",
+        "意大利"
+      ]
+    },
+    {
+      "id": "DNK",
+      "name": "丹麦",
+      "level": "country",
+      "coordinates": [
+        9.018163,
+        55.966965
+      ],
+      "aliases": [
+        "Denmark",
+        "丹麦"
+      ]
+    },
+    {
+      "id": "GBR",
+      "name": "英国",
+      "level": "country",
+      "coordinates": [
+        -2.116346,
+        54.402739
+      ],
+      "aliases": [
+        "United Kingdom",
+        "英国",
+        "Britain",
+        "Great Britain",
+        "UK",
+        "U.K."
+      ]
+    },
+    {
+      "id": "ISL",
+      "name": "冰岛",
+      "level": "country",
+      "coordinates": [
+        -18.673711,
+        64.779286
+      ],
+      "aliases": [
+        "Iceland",
+        "冰岛"
+      ]
+    },
+    {
+      "id": "AZE",
+      "name": "阿塞拜疆",
+      "level": "country",
+      "coordinates": [
+        47.210994,
+        40.402387
+      ],
+      "aliases": [
+        "Azerbaijan",
+        "阿塞拜疆"
+      ]
+    },
+    {
+      "id": "GEO",
+      "name": "格鲁吉亚",
+      "level": "country",
+      "coordinates": [
+        43.735724,
+        41.870087
+      ],
+      "aliases": [
+        "Georgia",
+        "格鲁吉亚"
+      ]
+    },
+    {
+      "id": "PHL",
+      "name": "菲律宾",
+      "level": "country",
+      "coordinates": [
+        122.465,
+        11.198
+      ],
+      "aliases": [
+        "Philippines",
+        "菲律宾"
+      ]
+    },
+    {
+      "id": "MYS",
+      "name": "马来西亚",
+      "level": "country",
+      "coordinates": [
+        113.83708,
+        2.528667
+      ],
+      "aliases": [
+        "Malaysia",
+        "马来西亚"
+      ]
+    },
+    {
+      "id": "BRN",
+      "name": "文莱",
+      "level": "country",
+      "coordinates": [
+        114.551943,
+        4.448298
+      ],
+      "aliases": [
+        "Brunei",
+        "文莱"
+      ]
+    },
+    {
+      "id": "SVN",
+      "name": "斯洛文尼亚",
+      "level": "country",
+      "coordinates": [
+        14.915312,
+        46.06076
+      ],
+      "aliases": [
+        "Slovenia",
+        "斯洛文尼亚"
+      ]
+    },
+    {
+      "id": "FIN",
+      "name": "芬兰",
+      "level": "country",
+      "coordinates": [
+        27.276449,
+        63.252361
+      ],
+      "aliases": [
+        "Finland",
+        "芬兰"
+      ]
+    },
+    {
+      "id": "SVK",
+      "name": "斯洛伐克",
+      "level": "country",
+      "coordinates": [
+        19.049868,
+        48.734044
+      ],
+      "aliases": [
+        "Slovakia",
+        "斯洛伐克"
+      ]
+    },
+    {
+      "id": "CZE",
+      "name": "捷克",
+      "level": "country",
+      "coordinates": [
+        15.377555,
+        49.882364
+      ],
+      "aliases": [
+        "Czechia",
+        "Czech Republic",
+        "捷克"
+      ]
+    },
+    {
+      "id": "ERI",
+      "name": "厄立特里亚",
+      "level": "country",
+      "coordinates": [
+        38.285566,
+        15.787401
+      ],
+      "aliases": [
+        "Eritrea",
+        "厄立特里亚"
+      ]
+    },
+    {
+      "id": "JPN",
+      "name": "日本",
+      "level": "country",
+      "coordinates": [
+        138.44217,
+        36.142538
+      ],
+      "aliases": [
+        "Japan",
+        "日本"
+      ]
+    },
+    {
+      "id": "PRY",
+      "name": "巴拉圭",
+      "level": "country",
+      "coordinates": [
+        -60.146394,
+        -21.674509
+      ],
+      "aliases": [
+        "Paraguay",
+        "巴拉圭"
+      ]
+    },
+    {
+      "id": "YEM",
+      "name": "也门",
+      "level": "country",
+      "coordinates": [
+        45.874383,
+        15.328226
+      ],
+      "aliases": [
+        "Yemen",
+        "也门"
+      ]
+    },
+    {
+      "id": "SAU",
+      "name": "沙特阿拉伯",
+      "level": "country",
+      "coordinates": [
+        44.6996,
+        23.806908
+      ],
+      "aliases": [
+        "Saudi Arabia",
+        "沙特阿拉伯",
+        "沙特"
+      ]
+    },
+    {
+      "id": "CYN",
+      "name": "北塞浦路斯土耳其共和国",
+      "level": "country",
+      "coordinates": [
+        33.692434,
+        35.216071
+      ],
+      "aliases": [
+        "N. Cyprus",
+        "Turkish Republic of Northern Cyprus",
+        "北塞浦路斯土耳其共和国",
+        "Northern Cyprus"
+      ]
+    },
+    {
+      "id": "CYP",
+      "name": "塞浦路斯",
+      "level": "country",
+      "coordinates": [
+        33.084182,
+        34.913329
+      ],
+      "aliases": [
+        "Cyprus",
+        "塞浦路斯"
+      ]
+    },
+    {
+      "id": "MAR",
+      "name": "摩洛哥",
+      "level": "country",
+      "coordinates": [
+        -7.187296,
+        31.650723
+      ],
+      "aliases": [
+        "Morocco",
+        "摩洛哥"
+      ]
+    },
+    {
+      "id": "EGY",
+      "name": "埃及",
+      "level": "country",
+      "coordinates": [
+        29.445837,
+        26.186173
+      ],
+      "aliases": [
+        "Egypt",
+        "埃及"
+      ]
+    },
+    {
+      "id": "LBY",
+      "name": "利比亚",
+      "level": "country",
+      "coordinates": [
+        18.011015,
+        26.638944
+      ],
+      "aliases": [
+        "Libya",
+        "利比亚"
+      ]
+    },
+    {
+      "id": "ETH",
+      "name": "埃塞俄比亚",
+      "level": "country",
+      "coordinates": [
+        39.0886,
+        8.032795
+      ],
+      "aliases": [
+        "Ethiopia",
+        "埃塞俄比亚"
+      ]
+    },
+    {
+      "id": "DJI",
+      "name": "吉布提",
+      "level": "country",
+      "coordinates": [
+        42.498825,
+        11.976343
+      ],
+      "aliases": [
+        "Djibouti",
+        "吉布提"
+      ]
+    },
+    {
+      "id": "SOL",
+      "name": "索马里兰",
+      "level": "country",
+      "coordinates": [
+        46.731595,
+        9.443889
+      ],
+      "aliases": [
+        "Somaliland",
+        "索马里兰"
+      ]
+    },
+    {
+      "id": "UGA",
+      "name": "乌干达",
+      "level": "country",
+      "coordinates": [
+        32.948555,
+        1.972589
+      ],
+      "aliases": [
+        "Uganda",
+        "乌干达"
+      ]
+    },
+    {
+      "id": "RWA",
+      "name": "卢旺达",
+      "level": "country",
+      "coordinates": [
+        30.103894,
+        -1.897196
+      ],
+      "aliases": [
+        "Rwanda",
+        "卢旺达"
+      ]
+    },
+    {
+      "id": "BIH",
+      "name": "波斯尼亚和黑塞哥维那",
+      "level": "country",
+      "coordinates": [
+        18.06841,
+        44.091051
+      ],
+      "aliases": [
+        "Bosnia and Herz.",
+        "Bosnia and Herzegovina",
+        "波斯尼亚和黑塞哥维那"
+      ]
+    },
+    {
+      "id": "MKD",
+      "name": "北马其顿",
+      "level": "country",
+      "coordinates": [
+        21.555839,
+        41.558223
+      ],
+      "aliases": [
+        "North Macedonia",
+        "北马其顿"
+      ]
+    },
+    {
+      "id": "SRB",
+      "name": "塞尔维亚",
+      "level": "country",
+      "coordinates": [
+        20.787989,
+        44.189919
+      ],
+      "aliases": [
+        "Serbia",
+        "塞尔维亚",
+        "Republic of Serbia"
+      ]
+    },
+    {
+      "id": "MNE",
+      "name": "黑山",
+      "level": "country",
+      "coordinates": [
+        19.143727,
+        42.803101
+      ],
+      "aliases": [
+        "Montenegro",
+        "黑山"
+      ]
+    },
+    {
+      "id": "KOS",
+      "name": "科索沃",
+      "level": "country",
+      "coordinates": [
+        20.860719,
+        42.593587
+      ],
+      "aliases": [
+        "Kosovo",
+        "科索沃"
+      ]
+    },
+    {
+      "id": "TTO",
+      "name": "特立尼达和多巴哥",
+      "level": "country",
+      "coordinates": [
+        -60.9184,
+        10.9989
+      ],
+      "aliases": [
+        "Trinidad and Tobago",
+        "特立尼达和多巴哥"
+      ]
+    },
+    {
+      "id": "SDS",
+      "name": "南苏丹",
+      "level": "country",
+      "coordinates": [
+        30.390151,
+        7.230477
+      ],
+      "aliases": [
+        "S. Sudan",
+        "South Sudan",
+        "南苏丹"
+      ]
+    },
+    {
+      "id": "city:new_york",
+      "name": "纽约",
+      "level": "city",
+      "coordinates": [
+        -74.006,
+        40.713
+      ],
+      "aliases": [
+        "纽约",
+        "New York",
+        "NYC"
+      ]
+    },
+    {
+      "id": "city:washington_dc",
+      "name": "华盛顿特区",
+      "level": "city",
+      "coordinates": [
+        -77.037,
+        38.907
+      ],
+      "aliases": [
+        "华盛顿特区",
+        "Washington DC",
+        "Washington, D.C.",
+        "Washington D.C.",
+        "华盛顿特区"
+      ]
+    },
+    {
+      "id": "city:san_francisco",
+      "name": "旧金山",
+      "level": "city",
+      "coordinates": [
+        -122.419,
+        37.775
+      ],
+      "aliases": [
+        "旧金山",
+        "San Francisco"
+      ]
+    },
+    {
+      "id": "city:los_angeles",
+      "name": "洛杉矶",
+      "level": "city",
+      "coordinates": [
+        -118.244,
+        34.052
+      ],
+      "aliases": [
+        "洛杉矶",
+        "Los Angeles"
+      ]
+    },
+    {
+      "id": "city:chicago",
+      "name": "芝加哥",
+      "level": "city",
+      "coordinates": [
+        -87.63,
+        41.878
+      ],
+      "aliases": [
+        "芝加哥",
+        "Chicago"
+      ]
+    },
+    {
+      "id": "city:london",
+      "name": "伦敦",
+      "level": "city",
+      "coordinates": [
+        -0.128,
+        51.507
+      ],
+      "aliases": [
+        "伦敦",
+        "London"
+      ]
+    },
+    {
+      "id": "city:paris",
+      "name": "巴黎",
+      "level": "city",
+      "coordinates": [
+        2.352,
+        48.857
+      ],
+      "aliases": [
+        "巴黎",
+        "Paris"
+      ]
+    },
+    {
+      "id": "city:berlin",
+      "name": "柏林",
+      "level": "city",
+      "coordinates": [
+        13.405,
+        52.52
+      ],
+      "aliases": [
+        "柏林",
+        "Berlin"
+      ]
+    },
+    {
+      "id": "city:brussels",
+      "name": "布鲁塞尔",
+      "level": "city",
+      "coordinates": [
+        4.352,
+        50.85
+      ],
+      "aliases": [
+        "布鲁塞尔",
+        "Brussels"
+      ]
+    },
+    {
+      "id": "city:rome",
+      "name": "罗马",
+      "level": "city",
+      "coordinates": [
+        12.496,
+        41.903
+      ],
+      "aliases": [
+        "罗马",
+        "Rome"
+      ]
+    },
+    {
+      "id": "city:madrid",
+      "name": "马德里",
+      "level": "city",
+      "coordinates": [
+        -3.704,
+        40.417
+      ],
+      "aliases": [
+        "马德里",
+        "Madrid"
+      ]
+    },
+    {
+      "id": "city:zurich",
+      "name": "苏黎世",
+      "level": "city",
+      "coordinates": [
+        8.542,
+        47.377
+      ],
+      "aliases": [
+        "苏黎世",
+        "Zurich"
+      ]
+    },
+    {
+      "id": "city:geneva",
+      "name": "日内瓦",
+      "level": "city",
+      "coordinates": [
+        6.143,
+        46.204
+      ],
+      "aliases": [
+        "日内瓦",
+        "Geneva"
+      ]
+    },
+    {
+      "id": "city:kyiv",
+      "name": "基辅",
+      "level": "city",
+      "coordinates": [
+        30.523,
+        50.45
+      ],
+      "aliases": [
+        "基辅",
+        "Kyiv",
+        "Kiev"
+      ]
+    },
+    {
+      "id": "city:moscow",
+      "name": "莫斯科",
+      "level": "city",
+      "coordinates": [
+        37.617,
+        55.756
+      ],
+      "aliases": [
+        "莫斯科",
+        "Moscow"
+      ]
+    },
+    {
+      "id": "city:istanbul",
+      "name": "伊斯坦布尔",
+      "level": "city",
+      "coordinates": [
+        28.978,
+        41.008
+      ],
+      "aliases": [
+        "伊斯坦布尔",
+        "Istanbul"
+      ]
+    },
+    {
+      "id": "city:jerusalem",
+      "name": "耶路撒冷",
+      "level": "city",
+      "coordinates": [
+        35.214,
+        31.769
+      ],
+      "aliases": [
+        "耶路撒冷",
+        "Jerusalem"
+      ]
+    },
+    {
+      "id": "city:tel_aviv",
+      "name": "特拉维夫",
+      "level": "city",
+      "coordinates": [
+        34.782,
+        32.085
+      ],
+      "aliases": [
+        "特拉维夫",
+        "Tel Aviv"
+      ]
+    },
+    {
+      "id": "city:beirut",
+      "name": "贝鲁特",
+      "level": "city",
+      "coordinates": [
+        35.502,
+        33.894
+      ],
+      "aliases": [
+        "贝鲁特",
+        "Beirut"
+      ]
+    },
+    {
+      "id": "city:tehran",
+      "name": "德黑兰",
+      "level": "city",
+      "coordinates": [
+        51.389,
+        35.689
+      ],
+      "aliases": [
+        "德黑兰",
+        "Tehran"
+      ]
+    },
+    {
+      "id": "city:baghdad",
+      "name": "巴格达",
+      "level": "city",
+      "coordinates": [
+        44.367,
+        33.315
+      ],
+      "aliases": [
+        "巴格达",
+        "Baghdad"
+      ]
+    },
+    {
+      "id": "city:damascus",
+      "name": "大马士革",
+      "level": "city",
+      "coordinates": [
+        36.277,
+        33.514
+      ],
+      "aliases": [
+        "大马士革",
+        "Damascus"
+      ]
+    },
+    {
+      "id": "city:riyadh",
+      "name": "利雅得",
+      "level": "city",
+      "coordinates": [
+        46.675,
+        24.714
+      ],
+      "aliases": [
+        "利雅得",
+        "Riyadh"
+      ]
+    },
+    {
+      "id": "city:dubai",
+      "name": "迪拜",
+      "level": "city",
+      "coordinates": [
+        55.27,
+        25.205
+      ],
+      "aliases": [
+        "迪拜",
+        "Dubai"
+      ]
+    },
+    {
+      "id": "city:doha",
+      "name": "多哈",
+      "level": "city",
+      "coordinates": [
+        51.531,
+        25.286
+      ],
+      "aliases": [
+        "多哈",
+        "Doha"
+      ]
+    },
+    {
+      "id": "city:cairo",
+      "name": "开罗",
+      "level": "city",
+      "coordinates": [
+        31.236,
+        30.044
+      ],
+      "aliases": [
+        "开罗",
+        "Cairo"
+      ]
+    },
+    {
+      "id": "city:beijing",
+      "name": "北京",
+      "level": "city",
+      "coordinates": [
+        116.407,
+        39.904
+      ],
+      "aliases": [
+        "北京",
+        "Beijing"
+      ]
+    },
+    {
+      "id": "city:shanghai",
+      "name": "上海",
+      "level": "city",
+      "coordinates": [
+        121.474,
+        31.23
+      ],
+      "aliases": [
+        "上海",
+        "Shanghai"
+      ]
+    },
+    {
+      "id": "city:shenzhen",
+      "name": "深圳",
+      "level": "city",
+      "coordinates": [
+        114.058,
+        22.543
+      ],
+      "aliases": [
+        "深圳",
+        "Shenzhen"
+      ]
+    },
+    {
+      "id": "city:hong_kong",
+      "name": "香港",
+      "level": "city",
+      "coordinates": [
+        114.169,
+        22.319
+      ],
+      "aliases": [
+        "香港",
+        "Hong Kong"
+      ]
+    },
+    {
+      "id": "city:taipei",
+      "name": "台北",
+      "level": "city",
+      "coordinates": [
+        121.565,
+        25.033
+      ],
+      "aliases": [
+        "台北",
+        "Taipei"
+      ]
+    },
+    {
+      "id": "city:tokyo",
+      "name": "东京",
+      "level": "city",
+      "coordinates": [
+        139.692,
+        35.69
+      ],
+      "aliases": [
+        "东京",
+        "Tokyo"
+      ]
+    },
+    {
+      "id": "city:seoul",
+      "name": "首尔",
+      "level": "city",
+      "coordinates": [
+        126.978,
+        37.567
+      ],
+      "aliases": [
+        "首尔",
+        "Seoul"
+      ]
+    },
+    {
+      "id": "city:delhi",
+      "name": "新德里",
+      "level": "city",
+      "coordinates": [
+        77.209,
+        28.614
+      ],
+      "aliases": [
+        "新德里",
+        "New Delhi"
+      ]
+    },
+    {
+      "id": "city:mumbai",
+      "name": "孟买",
+      "level": "city",
+      "coordinates": [
+        72.878,
+        19.076
+      ],
+      "aliases": [
+        "孟买",
+        "Mumbai"
+      ]
+    },
+    {
+      "id": "city:jakarta",
+      "name": "雅加达",
+      "level": "city",
+      "coordinates": [
+        106.846,
+        -6.208
+      ],
+      "aliases": [
+        "雅加达",
+        "Jakarta"
+      ]
+    },
+    {
+      "id": "city:bangkok",
+      "name": "曼谷",
+      "level": "city",
+      "coordinates": [
+        100.502,
+        13.756
+      ],
+      "aliases": [
+        "曼谷",
+        "Bangkok"
+      ]
+    },
+    {
+      "id": "city:sydney",
+      "name": "悉尼",
+      "level": "city",
+      "coordinates": [
+        151.209,
+        -33.869
+      ],
+      "aliases": [
+        "悉尼",
+        "Sydney"
+      ]
+    },
+    {
+      "id": "city:ottawa",
+      "name": "渥太华",
+      "level": "city",
+      "coordinates": [
+        -75.697,
+        45.422
+      ],
+      "aliases": [
+        "渥太华",
+        "Ottawa"
+      ]
+    },
+    {
+      "id": "city:toronto",
+      "name": "多伦多",
+      "level": "city",
+      "coordinates": [
+        -79.383,
+        43.653
+      ],
+      "aliases": [
+        "多伦多",
+        "Toronto"
+      ]
+    },
+    {
+      "id": "city:mexico_city",
+      "name": "墨西哥城",
+      "level": "city",
+      "coordinates": [
+        -99.133,
+        19.433
+      ],
+      "aliases": [
+        "墨西哥城",
+        "Mexico City"
+      ]
+    },
+    {
+      "id": "city:sao_paulo",
+      "name": "圣保罗",
+      "level": "city",
+      "coordinates": [
+        -46.633,
+        -23.55
+      ],
+      "aliases": [
+        "圣保罗",
+        "Sao Paulo",
+        "São Paulo"
+      ]
+    },
+    {
+      "id": "city:buenos_aires",
+      "name": "布宜诺斯艾利斯",
+      "level": "city",
+      "coordinates": [
+        -58.382,
+        -34.604
+      ],
+      "aliases": [
+        "布宜诺斯艾利斯",
+        "Buenos Aires"
+      ]
+    },
+    {
+      "id": "region:california",
+      "name": "加利福尼亚州",
+      "level": "region",
+      "coordinates": [
+        -119.4,
+        36.8
+      ],
+      "aliases": [
+        "加利福尼亚州",
+        "California",
+        "加州"
+      ]
+    },
+    {
+      "id": "region:texas",
+      "name": "得克萨斯州",
+      "level": "region",
+      "coordinates": [
+        -99.9,
+        31
+      ],
+      "aliases": [
+        "得克萨斯州",
+        "Texas",
+        "德州"
+      ]
+    },
+    {
+      "id": "region:ohio",
+      "name": "俄亥俄州",
+      "level": "region",
+      "coordinates": [
+        -82.9,
+        40.4
+      ],
+      "aliases": [
+        "俄亥俄州",
+        "Ohio"
+      ]
+    },
+    {
+      "id": "region:florida",
+      "name": "佛罗里达州",
+      "level": "region",
+      "coordinates": [
+        -81.5,
+        27.7
+      ],
+      "aliases": [
+        "佛罗里达州",
+        "Florida"
+      ]
+    },
+    {
+      "id": "region:gaza",
+      "name": "加沙地带",
+      "level": "region",
+      "coordinates": [
+        34.45,
+        31.42
+      ],
+      "aliases": [
+        "加沙地带",
+        "Gaza Strip",
+        "Gaza",
+        "加沙"
+      ]
+    },
+    {
+      "id": "region:west_bank",
+      "name": "约旦河西岸",
+      "level": "region",
+      "coordinates": [
+        35.27,
+        32.0
+      ],
+      "aliases": [
+        "约旦河西岸",
+        "West Bank"
+      ]
+    },
+    {
+      "id": "region:hormuz",
+      "name": "霍尔木兹海峡",
+      "level": "region",
+      "coordinates": [
+        56.3,
+        26.6
+      ],
+      "aliases": [
+        "霍尔木兹海峡",
+        "Strait of Hormuz",
+        "Hormuz"
+      ]
+    },
+    {
+      "id": "region:red_sea",
+      "name": "红海",
+      "level": "region",
+      "coordinates": [
+        38.5,
+        20.3
+      ],
+      "aliases": [
+        "红海",
+        "Red Sea"
+      ]
+    },
+    {
+      "id": "region:black_sea",
+      "name": "黑海",
+      "level": "region",
+      "coordinates": [
+        34,
+        43
+      ],
+      "aliases": [
+        "黑海",
+        "Black Sea"
+      ]
+    },
+    {
+      "id": "region:taiwan_strait",
+      "name": "台湾海峡",
+      "level": "region",
+      "coordinates": [
+        119.5,
+        24.8
+      ],
+      "aliases": [
+        "台湾海峡",
+        "Taiwan Strait",
+        "台海"
+      ]
+    },
+    {
+      "id": "region:south_china_sea",
+      "name": "南海",
+      "level": "region",
+      "coordinates": [
+        114,
+        14
+      ],
+      "aliases": [
+        "南海",
+        "South China Sea"
+      ]
+    },
+    {
+      "id": "region:suez",
+      "name": "苏伊士运河",
+      "level": "region",
+      "coordinates": [
+        32.3,
+        30.5
+      ],
+      "aliases": [
+        "苏伊士运河",
+        "Suez Canal"
+      ]
+    },
+    {
+      "id": "region:europe",
+      "name": "欧洲",
+      "level": "region",
+      "coordinates": [
+        15,
+        51
+      ],
+      "aliases": [
+        "欧洲",
+        "Europe"
+      ]
+    },
+    {
+      "id": "region:middle_east",
+      "name": "中东",
+      "level": "region",
+      "coordinates": [
+        43,
+        30
+      ],
+      "aliases": [
+        "中东",
+        "Middle East"
+      ]
+    },
+    {
+      "id": "region:eurozone",
+      "name": "欧元区",
+      "level": "region",
+      "coordinates": [
+        10,
+        49
+      ],
+      "aliases": [
+        "欧元区",
+        "Eurozone",
+        "euro zone",
+        "euro area"
+      ]
+    }
+  ]
+}

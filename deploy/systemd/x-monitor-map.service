@@ -1,0 +1,24 @@
+[Unit]
+Description=Locate saved news for the event map
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=xmonitorai
+Group=xmonitorweb
+WorkingDirectory=/srv/x-monitor
+EnvironmentFile=/etc/x-monitor-ai.env
+ExecStart=/srv/x-monitor/.venv/bin/python /srv/x-monitor/map_worker.py
+Restart=always
+RestartSec=30
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/x-monitor/geo_data
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target

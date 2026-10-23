@@ -114,6 +114,24 @@ systemctl enable --now x-monitor-rss.service
 
 RSS 配置保存在 `config/rss_sources.json`，采集记录和状态保存在 `rss_data/`。来源目录由 `sources.py` 定义；采集服务日志可通过 `journalctl -u x-monitor-rss.service` 查看。
 
+## 事件地图
+
+左侧菜单的「事件地图」打开独立 `/map` 页面，支持最近 24 小时、3 天、7 天、来源、分类、关键词和时间回看。手机端可切换地图与事件列表。
+
+```bash
+install -d -o xmonitorai -g xmonitorweb -m 2750 /srv/x-monitor/geo_data
+cp deploy/systemd/x-monitor-map.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now x-monitor-map.service
+systemctl restart x-monitor-web.service
+```
+
+`map_worker.py` 沿用 `/etc/x-monitor-ai.env` 的模型配置，首次处理北京时间今天和昨天，后续持续处理新增内容，地点索引保留最近 7 天。先用本地地点表匹配正文候选，再由模型判断事件发生地或明确的地区范围；坐标取自地点表，原文摘录通过校验后才显示。每批最多 4 条、两批并发，结果按原文哈希缓存；失败后退避重试，同一原文最多尝试 3 次，仍未通过的内容显示「识别暂缓」。原文没有匹配地点的内容直接完成检查。
+
+`geo_data/locations.json` 保存地点与原文依据，`geo_data/status.json` 保存处理进度。网页通过 `/map/stream` 接收更新，并以 30 秒轮询补充。数据和 API 均需要登录。日志使用 `journalctl -u x-monitor-map.service` 查看。
+
+地图使用本地托管的 MapLibre GL JS 5.6.2（BSD-3-Clause），底图按视口加载 OpenStreetMap 瓦片并保留署名。国家轮廓与国家名称来自 Natural Earth 公有领域数据，作为本地基础图层；城市及区域使用 `config/map_places.json` 中的代表点。国家 / 区域标记在页面注明范围，地点覆盖以该表为准。修改地点表或识别规则时更新 `map_worker.VERSION` 并重启地图服务，以重新校验缓存。
+
 ## HTTPS 与实时更新
 
 网页监听 `127.0.0.1:8765`，通过 HTTPS 反向代理访问。会话 Cookie 启用 `Secure`，在 HTTPS 连接中保持登录。

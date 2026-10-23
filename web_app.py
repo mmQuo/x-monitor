@@ -21,6 +21,7 @@ from werkzeug.security import check_password_hash
 
 from link_utils import link_label, linkify, links_for_post
 from report_web import reports
+from map_web import maps
 from categories import CATEGORY_FILTERS, MACRO_CATEGORIES, MACRO_GROUP, matches_category
 from sources import RSS_FEEDS, article_url, rss_sources, set_rss_enabled, source_label, source_path
 
@@ -34,6 +35,7 @@ HANDLE = re.compile(r"[A-Za-z0-9_]{1,15}\Z")
 
 app = Flask(__name__)
 app.register_blueprint(reports)
+app.register_blueprint(maps)
 app.json.ensure_ascii = False
 app.secret_key = os.environ.get("XMONITOR_WEB_SECRET", "")
 PASSWORD_HASH = os.environ.get("XMONITOR_WEB_PASSWORD_HASH", "")
@@ -274,6 +276,13 @@ def secure_headers(response):
         "default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; "
         "base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
     )
+    if request.blueprint == "maps":
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; script-src 'self'; worker-src 'self'; "
+            "style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob: https://tile.openstreetmap.org; "
+            "connect-src 'self' https://tile.openstreetmap.org; "
+            "base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
+        )
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Cache-Control"] = (

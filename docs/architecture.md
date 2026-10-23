@@ -28,6 +28,10 @@ flowchart TD
     snapshot --> daily[daily_worker.py 提取 / 归并 / 核对]
     daily --> reports[report_data/reports.sqlite3]
     raw --> web[Flask 工作台与导出]
+    raw --> geo[map_worker.py 地点候选 / 原文依据核对]
+    rssraw --> geo
+    geo --> locations[geo_data/ 地点索引]
+    locations --> web
     annotations --> web
     status --> web
     linkcache --> web
@@ -94,6 +98,7 @@ flowchart TD
 | `accounts.db` | twscrape 会话 Cookie | twscrape / 采集进程 |
 | `*_posts.jsonl`、`*.baseline_at` | 原始帖子与首次检查时间 | 采集进程 |
 | `monitor_status.json` | 检查时间、数量、错误状态 | 采集进程 |
+| `geo_data/` | 近 7 天地点、原文依据与识别进度 | 地图进程 |
 | `ai_data/` | 中文注解、初始化状态 | AI 进程 |
 | `link_data/` | 短链展开缓存 | 短链进程 |
 | `clean_data/` | 预处理结果与文件版本 | 预清洗 / 日报进程 |

@@ -11,8 +11,9 @@
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png', v='1') }}">
   <title>{% block title %}推文监控{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='24') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='25') }}">
   {% if request.blueprint == 'reports' %}<link rel="stylesheet" href="{{ url_for('static', filename='reports.css', v='6') }}">{% endif %}
+  {% block head %}{% endblock %}
 </head>
 <body class="{% if session.get('authenticated') %}workspace{% else %}auth-page{% endif %}">
   <a class="skip-link" href="#main-content">跳转到主要内容</a>
@@ -25,6 +26,7 @@
     <div class="nav-label">工作空间 <span>WORKSPACE</span></div>
     <nav class="main-nav">
       <a class="nav-item{% if request.endpoint == 'dashboard' %} active{% endif %}" href="{{ url_for('dashboard') }}"{% if request.endpoint == 'dashboard' %} aria-current="page"{% endif %}>{{ icon('grid') }}<span>资讯总览</span>{{ icon('chevron', 14) }}</a>
+      <a class="nav-item{% if request.blueprint == 'maps' %} active{% endif %}" href="{{ url_for('maps.index') }}"{% if request.blueprint == 'maps' %} aria-current="page"{% endif %}>{{ icon('map') }}<span>事件地图</span>{{ icon('chevron', 14) }}</a>
       <a class="nav-item{% if request.blueprint == 'reports' %} active{% endif %}" href="{{ url_for('reports.index') }}"{% if request.blueprint == 'reports' %} aria-current="page"{% endif %}>{{ icon('document') }}<span>每日简报</span>{{ icon('chevron', 14) }}</a>
       <a class="nav-item" href="{{ url_for('dashboard') }}#accounts-title">{{ icon('users') }}<span>监控来源</span>{{ icon('chevron', 14) }}</a>
     </nav>

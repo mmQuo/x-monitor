@@ -30,3 +30,5 @@ report_data/
 clean_data/
 rss_data/
 *.log
+
+geo_data/

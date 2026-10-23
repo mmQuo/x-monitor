@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}事件地图 · 推文监控{% endblock %}
+{% block breadcrumb %}事件地图{% endblock %}
+{% block header_status %}<span class="header-cadence">{{ icon('map', 15) }}按地点浏览资讯</span><span id="map-live" class="live-state" role="status">加载中</span>{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='vendor/maplibre/maplibre-gl.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='map.css', v='2') }}">{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='vendor/maplibre/maplibre-gl-csp.js') }}" defer></script><script src="{{ url_for('static', filename='map.js', v='2') }}" defer></script>{% endblock %}
+{% block content %}
+<section class="map-page" data-worker-url="{{ url_for('static', filename='vendor/maplibre/maplibre-gl-csp-worker.js') }}">
+  <form id="map-filters" class="map-filters" role="search">
+    <label class="sr-only" for="map-hours">时间范围</label><select id="map-hours" name="hours" class="form-select"><option value="24">最近 24 小时</option><option value="72">最近 3 天</option><option value="168">最近 7 天</option></select>
+    <label class="sr-only" for="map-source">资讯来源</label><select id="map-source" name="source" class="form-select"><option value="">全部来源</option>{% for source in sources %}<option value="{{ source.name }}">{{ source.label }}</option>{% endfor %}</select>
+    <label class="sr-only" for="map-category">资讯分类</label><select id="map-category" name="category" class="form-select"><option value="">全部分类</option>{% for category in categories %}<option value="{{ category }}">{{ category }}</option>{% endfor %}</select>
+    <div class="map-search"><label class="sr-only" for="map-query">搜索内容与地点</label>{{ icon('search', 16) }}<input id="map-query" type="search" name="q" class="form-control" placeholder="搜索内容…" maxlength="100"></div>
+    <button class="icon-button" type="submit" title="刷新地图" aria-label="刷新地图">{{ icon('refresh', 17) }}</button>
+  </form>
+  <div class="map-status-row"><p id="map-count" aria-live="polite">正在读取已保存的资讯…</p><span class="map-precision-note">标记按城市、国家或区域范围定位</span></div>
+  <div class="map-mobile-switch" role="group" aria-label="切换地图与列表"><button type="button" data-view="map" aria-pressed="true">{{ icon('map', 16) }}地图</button><button type="button" data-view="list" aria-pressed="false">{{ icon('document', 16) }}事件列表 <span id="mobile-count">0</span></button></div>
+  <div class="map-workspace" data-view="map">
+    <div class="map-canvas-panel">
+      <div id="event-map" aria-label="新闻事件平面地图"></div>
+      <div class="map-toolbar"><button type="button" class="map-tool" id="map-reset">{{ icon('map', 15) }}全球视图</button><button type="button" class="map-tool" id="map-clear" hidden>清除地点筛选 ×</button></div>
+      <p id="map-error" class="map-notice" role="status" hidden></p>
+      <div class="map-legend"><span><i class="dot-city"></i>城市</span><span><i class="dot-region"></i>国家 / 区域</span><span>数字为关联资讯数</span></div>
+    </div>
+    <aside class="map-events-panel" aria-label="与地图联动的资讯列表">
+      <div class="map-list-heading"><h2 id="map-list-title">全部地点</h2><span id="map-list-count">0 条</span></div>
+      <div id="map-events" class="map-events"><p class="map-empty">正在加载…</p></div>
+    </aside>
+  </div>
+  <div class="map-timebar"><label for="map-time">时间截止 <output id="map-time-label" for="map-time">现在</output></label><input id="map-time" type="range" min="0" max="24" value="24" step="1" aria-label="按时间回看事件"><button type="button" id="map-now">回到现在</button></div>
+  <noscript><p>启用 JavaScript 后可查看交互地图和事件列表。</p></noscript>
+</section>
+{% endblock %}
