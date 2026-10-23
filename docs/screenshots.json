@@ -5,7 +5,7 @@
   "report_date": "2026-10-22",
   "screenshots": [
     {
-      "file": "dashboard-desktop.png",
+      "file": "dashboard-4x3.png",
       "route": "/",
       "viewport": {
         "width": 1024,
@@ -15,7 +15,7 @@
       "fully_visible_feed_rows": 7
     },
     {
-      "file": "daily-desktop.png",
+      "file": "daily-4x3.png",
       "route": "/reports?date=2026-10-22",
       "viewport": {
         "width": 1024,

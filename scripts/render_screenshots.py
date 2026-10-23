@@ -85,8 +85,8 @@ def render(origin, password, day, output, executable):
     from playwright.sync_api import sync_playwright
 
     routes = [
-        ("dashboard-desktop.png", "/", 1024, 768, False),
-        ("daily-desktop.png", f"/reports?date={day}", 1024, 768, True),
+        ("dashboard-4x3.png", "/", 1024, 768, False),
+        ("daily-4x3.png", f"/reports?date={day}", 1024, 768, True),
     ]
     manifest = {
         "captured_at": datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(timespec="seconds"),

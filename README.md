@@ -14,10 +14,10 @@
 
 ### 资讯总览
 
-![资讯总览](docs/dashboard-desktop.png)
+![资讯总览](docs/dashboard-4x3.png)
 
 ### 每日简报
 
-![每日简报](docs/daily-desktop.png)
+![每日简报](docs/daily-4x3.png)
 
 部署与运行见 [部署指南](docs/deployment.md)。
