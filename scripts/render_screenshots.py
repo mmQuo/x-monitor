@@ -85,8 +85,8 @@ def render(origin, password, day, output, executable):
     from playwright.sync_api import sync_playwright
 
     routes = [
-        ("dashboard-desktop.png", "/", 1440, 1080, False),
-        ("daily-desktop.png", f"/reports?date={day}", 1440, 1080, True),
+        ("dashboard-desktop.png", "/", 1024, 768, False),
+        ("daily-desktop.png", f"/reports?date={day}", 1024, 768, True),
     ]
     manifest = {
         "captured_at": datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(timespec="seconds"),
@@ -104,7 +104,7 @@ def render(origin, password, day, output, executable):
         try:
             manifest["browser"] = "Chromium " + browser.version
             context = browser.new_context(
-                viewport={"width": 1440, "height": 1080}, device_scale_factor=1,
+                viewport={"width": 1024, "height": 768}, device_scale_factor=1,
                 locale="zh-CN", timezone_id="Asia/Shanghai", color_scheme="light",
             )
             page = context.new_page()

@@ -1,5 +1,5 @@
 {
-  "captured_at": "2026-10-23T23:04:31+08:00",
+  "captured_at": "2026-10-23T23:07:42+08:00",
   "timezone": "Asia/Shanghai",
   "source": "Saved X posts, AI annotations and daily reports",
   "report_date": "2026-10-22",
@@ -8,18 +8,18 @@
       "file": "dashboard-desktop.png",
       "route": "/",
       "viewport": {
-        "width": 1440,
-        "height": 1080
+        "width": 1024,
+        "height": 768
       },
       "rendered_items": 100,
-      "fully_visible_feed_rows": 12
+      "fully_visible_feed_rows": 7
     },
     {
       "file": "daily-desktop.png",
       "route": "/reports?date=2026-10-22",
       "viewport": {
-        "width": 1440,
-        "height": 1080
+        "width": 1024,
+        "height": 768
       },
       "rendered_items": 10
     }
