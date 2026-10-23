@@ -1,0 +1,23 @@
+[Unit]
+Description=Collect RSS news and official announcements
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=xmonitorai
+Group=xmonitorweb
+WorkingDirectory=/srv/x-monitor
+ExecStart=/srv/x-monitor/.venv/bin/python /srv/x-monitor/rss_worker.py
+Restart=always
+RestartSec=30
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/x-monitor/rss_data
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target

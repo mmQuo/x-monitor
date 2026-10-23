@@ -8,6 +8,13 @@ flowchart TD
     x[X 公开帖子] --> monitor
     monitor --> raw[每账号 JSONL 原始记录]
     monitor --> status[monitor_status.json 检查状态]
+    rssconfig[config/rss_sources.json 订阅配置] --> rss[rss_worker.py 每 5 分钟读取]
+    feeds[华尔街日报 / 美联储 RSS] --> rss
+    rss --> rssraw[rss_data/ 新闻摘要与检查状态]
+    rssraw --> ai
+    rssraw --> clean
+    rssraw --> snapshot
+    rssraw --> web
     raw --> links[link_backfill.py 短链展开]
     links --> linkcache[link_data/links.json]
     raw --> ai[ai_worker.py 摘要 / 翻译 / 分类]
@@ -26,6 +33,7 @@ flowchart TD
     linkcache --> web
     reports --> web
     web -->|账号管理| targets
+    web -->|启用 / 暂停订阅| rssconfig
     web -->|提交日报任务| reports
 ```
 
@@ -42,6 +50,8 @@ flowchart TD
 `web_app.py` 提供登录、CSRF 检查、账号管理、筛选和导出。页面展示最多 100 条最近的匹配记录，单账号参与筛选的候选范围为文件末尾 300 条；完整历史通过账号导出获取。摘要默认压缩为两行，展开后可读翻译与原文。SSE 检测本地文件变动，刷新动态时保留已展开的记录。
 
 `link_backfill.py` 读取 `t.co` 的重定向目标，将展开后的地址缓存并用于原帖链接和 AI 处理。展开失败时使用原短链。
+
+`rss_worker.py` 独立读取华尔街日报市场新闻、美联储货币政策公告与官员讲话。首次保存北京时间今天和昨天的标题及摘要，之后每 5 分钟检查，支持条件请求与失败退避。文章 URL 生成带 `rss:` 前缀的独立 ID；中文整理、筛选、预清洗、日报与导出共用这些记录，引用保留媒体名称和原文 URL。暂停订阅后，已保存内容仍可查看和导出。
 
 ## 分类
 
@@ -79,6 +89,8 @@ flowchart TD
 | 位置 | 内容 | 写入方 |
 | --- | --- | --- |
 | `config/targets.txt` | 当前目标账号 | 网页 / 管理员 |
+| `config/rss_sources.json` | 已启用的 RSS 来源 | 网页 / 管理员 |
+| `rss_data/` | RSS 标题、摘要与检查状态 | RSS 进程 |
 | `accounts.db` | twscrape 会话 Cookie | twscrape / 采集进程 |
 | `*_posts.jsonl`、`*.baseline_at` | 原始帖子与首次检查时间 | 采集进程 |
 | `monitor_status.json` | 检查时间、数量、错误状态 | 采集进程 |

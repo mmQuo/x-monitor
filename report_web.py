@@ -7,8 +7,10 @@ from functools import wraps
 from flask import Blueprint, Response, abort, flash, jsonify, redirect, render_template, request, session, url_for
 
 from report_store import ACTIVE, ReportStore, TZ, day_bounds, encode, parse_day, today
+from sources import source_label
 
 reports = Blueprint("reports", __name__)
+reports.add_app_template_filter(source_label, "source_label")
 
 
 def authenticated(func):
@@ -122,17 +124,17 @@ def markdown(edition):
         return text.replace("\n", " ")
     result = edition["result"]
     posts = {p["id"]: p for p in edition["snapshot"]["posts"]}
-    lines = [f"# {result['day']} 日报", "", f"北京时间 · {result['post_count']} 条推文 · {len(result['events'])} 个重点事件",
+    lines = [f"# {result['day']} 日报", "", f"北京时间 · {result['post_count']} 条内容 · {len(result['events'])} 个重点事件",
              f"数据截至 {report_time(edition['snapshot']['captured_at'])}", ""]
     if not result["events"]:
         lines.append("本期没有可整理的重点事件。")
     for event in result["events"]:
         lines += [f"## {clean(event['title'])}", "", f"{clean(event['category'])} · {clean(event['status'])}", "", clean(event["summary"]), "",
-                  "关注点：" + clean(event["reason"]), "", "进展（按原帖发布时间）：", ""]
+                  "关注点：" + clean(event["reason"]), "", "进展（按来源发布时间）：", ""]
         for entry in event["timeline"]:
-            links = " ".join(f"[@{posts[i]['username']}]({posts[i]['url']})" for i in entry["source_ids"])
+            links = " ".join(f"[{clean(source_label(posts[i]))}]({posts[i]['url']})" for i in entry["source_ids"])
             lines.append(f"- {report_time(entry['published_at'], '%H:%M')} {clean(entry['text'])} {links}")
-        lines += ["", "来源：" + " · ".join(f"[@{posts[i]['username']}]({posts[i]['url']})" for i in event["source_ids"])]
+        lines += ["", "来源：" + " · ".join(f"[{clean(source_label(posts[i]))}]({posts[i]['url']})" for i in event["source_ids"])]
         lines.append("")
     lines += [f"生成于 {report_time(result['generated_at'])}（北京时间）", ""]
     return "\n".join(lines)

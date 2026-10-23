@@ -1,0 +1,8 @@
+<details class="account-manage"><summary>管理订阅</summary><div class="manage-content">
+  <p class="account-checked">每 5 分钟更新 · <a href="{{ account.url }}" target="_blank" rel="noopener noreferrer">订阅地址</a></p>
+  {% if account.status.get('latest_published_at') %}<p class="account-checked">源内最新发布 {{ account.status.get('latest_published_at')|shorttime }}</p>{% endif %}
+  <form method="post" action="{{ url_for('toggle_rss', feed_id=account.name[4:]) }}" class="delete-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="enabled" value="{{ '0' if account.enabled else '1' }}">
+    <button type="submit">{{ '暂停订阅' if account.enabled else '启用订阅' }}</button>
+  </form>
+</div></details>

@@ -16,6 +16,8 @@ __pycache__/
 *.p12
 config/targets.txt
 config/.targets.lock
+config/rss_sources.json
+config/.rss.lock
 targets.txt
 
 # Runtime state and collected content
@@ -26,4 +28,5 @@ ai_data/
 link_data/
 report_data/
 clean_data/
+rss_data/
 *.log

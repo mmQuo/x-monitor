@@ -86,6 +86,7 @@ systemctl enable --now x-monitor-clean.service x-monitor-daily.service x-monitor
 | 单元 | 职责 / 周期 | 可写目录 |
 | --- | --- | --- |
 | `x-monitor-monitor.service` | 默认每 300 秒检查账号 | 根目录原帖、基线和状态、会话数据库 |
+| `x-monitor-rss.service` | 每 300 秒检查已启用的 RSS 来源 | `rss_data/` |
 | `x-monitor-ai.service` | 每 5 秒处理一批，最多 10 条 | `ai_data/` |
 | `x-monitor-web.service` | Gunicorn，2 个进程、每个 16 个线程 | `config/`、`report_data/` |
 | `x-monitor-links.timer` | 启动后 3 分钟、以后每 10 分钟运行短链服务 | `link_data/` |
@@ -93,6 +94,25 @@ systemctl enable --now x-monitor-clean.service x-monitor-daily.service x-monitor
 | `x-monitor-daily.service` | 北京时间 08:00 为前一天排队，持续处理网页任务 | `report_data/`、`clean_data/` |
 
 网页和 AI 服务启用 `ProtectSystem=strict`，按表中的目录配置写入权限。日报 / 预清洗使用共享组及 `UMask=0007`，保证 SQLite 和 WAL 可由相应进程访问。更换部署路径时同步修改每个单元的 `WorkingDirectory`、`ExecStart` 和 `ReadWritePaths`。
+
+## RSS 新闻订阅
+
+内置华尔街日报市场新闻、美联储货币政策公告及官员讲话三条订阅。首次接入保存北京时间今天和昨天的内容，之后每 5 分钟检查更新；用原文 URL 生成独立内容 ID，重启和重复订阅响应均可去重。失败后自动退避，支持 ETag 和 Last-Modified 条件请求。
+
+订阅内容进入来源筛选、全文搜索、AI 摘要与翻译、预清洗及日报；原文按钮链接到发布机构网站。RSS 输入标注为订阅提供的标题与摘要，日报保留媒体署名和原始链接。页面的「管理订阅」可暂停或启用来源，CSV / JSONL 可导出已保存内容。
+
+```bash
+.venv/bin/pip install -r requirements.txt
+install -d -o xmonitorai -g xmonitorweb -m 2750 /srv/x-monitor/rss_data
+cp config/rss_sources.example.json config/rss_sources.json
+chown xmonitorweb:xmonitorweb config/rss_sources.json
+chmod 660 config/rss_sources.json
+cp deploy/systemd/x-monitor-rss.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now x-monitor-rss.service
+```
+
+RSS 配置保存在 `config/rss_sources.json`，采集记录和状态保存在 `rss_data/`。来源目录由 `sources.py` 定义；采集服务日志可通过 `journalctl -u x-monitor-rss.service` 查看。
 
 ## HTTPS 与实时更新
 

@@ -12,6 +12,7 @@ from pathlib import Path
 import post_cleaner as cleaner
 from clean_store import BASE, CleanStore, load_links
 from report_store import TZ
+from sources import active_source_names, source_path
 
 
 def signature(path, cutoff, links_hash):
@@ -28,15 +29,14 @@ def process_once(base=BASE, store=None, now=None):
     links = load_links(base)
     links_hash = cleaner.digest(links)
     stats = {"files": 0, "cleaned": 0, "cached": 0, "invalid": 0}
-    names = {name.strip().lstrip("@").lower()
-             for name in (base / "config/targets.txt").read_text().splitlines()
-             if cleaner.HANDLE.fullmatch(name.strip().lstrip("@"))}
+    names = {name.lower() for name in active_source_names(base)}
     for name in sorted(names):
-        path = base / f"{name}_posts.jsonl"
+        path = source_path(base, name)
         if not path.exists():
             continue
         before = signature(path, cutoff, links_hash)
-        if store.file_current(path.name, before):
+        file_key = str(path.relative_to(base))
+        if store.file_current(file_key, before):
             continue
         stats["files"] += 1
         pending, partial, future = [], False, False
@@ -70,7 +70,7 @@ def process_once(base=BASE, store=None, now=None):
                     flush()
         flush()
         if not partial and not future and signature(path, cutoff, links_hash) == before:
-            store.file_done(path.name, before)
+            store.file_done(file_key, before)
     return stats
 
 

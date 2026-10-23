@@ -14,6 +14,7 @@ import httpx
 
 from link_utils import links_for_post
 from categories import CATEGORIES, MACRO_CATEGORY_RULES
+from sources import content_id, rss_sources, source_label, source_path
 
 BASE = Path(__file__).resolve().parent
 OUTPUT = BASE / "ai_data" / "annotations.json"
@@ -22,7 +23,7 @@ LINK_CACHE = BASE / "link_data" / "links.json"
 MODEL = os.getenv("XMONITOR_AI_MODEL", "go-deepseek-v4.1-flash")
 BASE_URL = os.getenv("XMONITOR_AI_BASE_URL", "").rstrip("/")
 API_KEY = os.getenv("XMONITOR_AI_API_KEY", "")
-SYSTEM_PROMPT = f"""你是科技、加密与宏观国际资讯编辑。对给定的一条 X 推文，输出一个 JSON 对象，且仅输出 JSON，不要 Markdown。
+SYSTEM_PROMPT = f"""你是科技、加密与宏观国际资讯编辑。对给定的一条 X 推文或 RSS 新闻材料，输出一个 JSON 对象，且仅输出 JSON，不要 Markdown。
 字段必须是：summary（中文一句话摘要，最多 60 个汉字，保留模型、公司、产品、币种名称、金额、日期和关键事实）；category（只能是：{'、'.join(CATEGORIES)}）；translation（准确、完整的中文翻译，保留链接、@用户名、币种符号和专有名称；原文若是中文，直接保留）。
 {MACRO_CATEGORY_RULES}
 其他分类规则：AI资讯用于人工智能模型、智能体、API、AI产品、开发工具、模型能力、用量与服务状态，以及 AI 行业发布；财经新闻用于非上述宏观主题的企业财报、并购、商业交易及财经政策；公司与产品用于非 AI、非加密领域的产品发布、服务更新和合作；上币与产品只用于加密资产、交易平台或链上项目的产品与上新；链上资金用于链上转账、持仓变化和资金流向；项目动态用于加密项目的进展、合作或服务事件；安全预警用于网络安全事件、漏洞与风险提示。非上述宏观主题的个人判断或评论使用人物观点；若主要是活动、征集或社区互动，使用活动与社区。
@@ -47,16 +48,19 @@ def load_json(path: Path) -> dict:
 
 def all_posts() -> list[dict]:
     posts = {}
-    for path in BASE.glob("*_posts.jsonl"):
+    paths = list(BASE.glob("*_posts.jsonl")) + [source_path(BASE, source["name"]) for source in rss_sources(BASE)]
+    for path in paths:
+        if not path.exists():
+            continue
         with path.open(encoding="utf-8") as file:
             for line in file:
                 try:
                     post = json.loads(line)
-                    post_id = str(int(post["id"]))
+                    post_id = content_id(post["id"])
                 except (ValueError, KeyError, TypeError):
                     continue
                 posts[post_id] = post
-    return sorted(posts.values(), key=lambda x: (x.get("created_at", ""), int(x["id"])), reverse=True)
+    return sorted(posts.values(), key=lambda x: (x.get("created_at", ""), str(x["id"])), reverse=True)
 
 
 def parse_result(content: str) -> dict:
@@ -83,7 +87,8 @@ def enrich(client: httpx.Client, post: dict) -> dict:
     links = links_for_post(post, load_json(LINK_CACHE))
     for short, expanded in links.items():
         text = text.replace(short, expanded)
-    prompt = f"账号：@{post.get('username', 'unknown')}\n推文：\n{text[:6000]}"
+    material = "RSS 提供的标题与摘要（分析范围为这些文字）" if post.get("source_type") == "rss" else "推文"
+    prompt = f"来源：{source_label(post)}\n{material}：\n{text[:6000]}"
     response = client.post(
         f"{BASE_URL}/chat/completions",
         headers={"Authorization": f"Bearer {API_KEY}"},

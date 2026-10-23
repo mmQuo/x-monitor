@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from urllib.parse import unquote_plus, urlsplit, urlunsplit
 
 from link_utils import URL_RE, links_for_post, safe_url
+from sources import RSS_FEEDS, content_id
 
 CLEANER_VERSION = "1"
 SOURCE_BYTES = 3000
@@ -31,18 +32,27 @@ def digest(value):
 
 def source_post(post):
     """Canonicalize metadata for cache keys, retaining exact original text."""
-    post_id = str(post["id"])
+    post_id = content_id(post["id"])
     name = str(post["username"])
     stamp = datetime.fromisoformat(post["created_at"])
-    if not re.fullmatch(r"[0-9]{1,25}", post_id) or not HANDLE.fullmatch(name) or stamp.tzinfo is None:
+    rss = name.startswith("rss:") and name[4:] in RSS_FEEDS
+    if (not rss and not HANDLE.fullmatch(name)) or stamp.tzinfo is None:
         raise ValueError("Invalid post metadata")
-    result = {"id": str(int(post_id)), "username": name.lower(),
+    if post_id.startswith("rss:") != rss:
+        raise ValueError("Mismatched source identity")
+    result = {"id": post_id, "username": name.lower(),
               "created_at": stamp.astimezone(timezone.utc).isoformat(),
               "text": str(post.get("text") or ""),
               "links": post.get("links") if isinstance(post.get("links"), list) else []}
     for key in ("reply_to_id", "quoted_post_id", "has_media"):
         if key in post:
             result[key] = post[key]
+    if rss:
+        url = safe_url(post.get("url"))
+        if not url:
+            raise ValueError("Missing article URL")
+        result.update(source_type="rss", source_label=RSS_FEEDS[name[4:]]["label"],
+                      url=url, content_kind="feed_summary")
     return result
 
 
@@ -162,6 +172,9 @@ def clean_post(post, resolved=None):
     flags = quality_flags(text, links, post)
     # This identifies matching content, not independent corroboration or an event.
     duplicate_group = digest([text, [link["canonical"] for link in links]]) if text.strip() else None
+    if post.get("source_type") == "rss" and text.strip():
+        # Recurring official releases can reuse the same title and short summary.
+        duplicate_group = digest([text, canonical_url(post["url"])])
     return {"post_id": post["id"], "raw_hash": digest(post), "link_hash": digest(resolved),
             "cleaner_version": CLEANER_VERSION, "clean_text": text, "links": links,
             "flags": flags, "duplicate_group": duplicate_group,

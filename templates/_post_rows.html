@@ -1,7 +1,7 @@
 {% from '_icons.html' import icon %}
 {% for post in posts %}
 <tr data-post-id="{{ post.id }}">
-  <td class="source-cell"><div class="post-author"><span class="account-avatar avatar-{{ post.account|length % 4 }}" aria-hidden="true">{{ post.account[:1]|upper }}</span><a href="{{ url_for('dashboard', account=post.account) }}" title="查看 @{{ post.account }} 的推文">@{{ post.account }}</a></div><time class="post-time" datetime="{{ post.get('created_at', '') }}">{{ post.get('created_at')|shorttime }}</time></td>
+  <td class="source-cell"><div class="post-author"><span class="account-avatar avatar-{{ post.account|length % 4 }}" aria-hidden="true">{{ post.account[:1]|upper }}</span><a href="{{ url_for('dashboard', account=post.account) }}" title="查看 {{ post.source_display }} 的内容">{{ post.source_display }}</a></div><time class="post-time" datetime="{{ post.get('created_at', '') }}">{{ post.get('created_at')|shorttime }}</time></td>
   <td class="text-cell">
     {% if post.ai %}
     <details class="post-details translation-details">
@@ -11,12 +11,12 @@
       </summary>
       {% if post.visible_links %}<div class="source-links">{% for expanded in post.visible_links %}<a href="{{ expanded }}" target="_blank" rel="noopener noreferrer" title="{{ expanded }}">{{ icon('link', 12) }}{{ expanded|link_label }}</a>{% endfor %}</div>{% endif %}
       {% if post.ai.translation != post.get('text', '') %}<div class="translated-text"><strong>中文翻译</strong><p>{{ post.ai.translation|linkify(post.link_map) }}</p></div>{% endif %}
-      <div class="expanded-text"><strong>原始推文</strong><p>{{ post.get('text', '')|linkify(post.link_map) }}</p></div>
+      <div class="expanded-text"><strong>{{ '订阅摘要' if post.get('source_type') == 'rss' else '原始推文' }}</strong><p>{{ post.get('text', '')|linkify(post.link_map) }}</p></div>
     </details>
     {% else %}
-    <details class="post-details original-details"><summary><span class="original-preview post-preview"><span class="pending-ai"><span class="mini-dot"></span>待整理</span>{{ post.get('preview', '') }}</span><span class="post-toggle"><span class="expand-label">展开</span><span class="collapse-label">收起</span>{{ icon('chevron', 12) }}</span></summary><div class="expanded-text"><strong>原始推文</strong><p>{{ post.get('text', '')|linkify(post.link_map) }}</p></div></details>
+    <details class="post-details original-details"><summary><span class="original-preview post-preview"><span class="pending-ai"><span class="mini-dot"></span>待整理</span>{{ post.get('preview', '') }}</span><span class="post-toggle"><span class="expand-label">展开</span><span class="collapse-label">收起</span>{{ icon('chevron', 12) }}</span></summary><div class="expanded-text"><strong>{{ '订阅摘要' if post.get('source_type') == 'rss' else '原始推文' }}</strong><p>{{ post.get('text', '')|linkify(post.link_map) }}</p></div></details>
     {% endif %}
   </td>
-  <td class="post-action"><a class="icon-button post-link" href="https://x.com/{{ post.account }}/status/{{ post.id }}" target="_blank" rel="noopener noreferrer" aria-label="在 X 查看 @{{ post.account }} 的原始推文" title="在 X 查看原文">{{ icon('external', 16) }}</a></td>
+  <td class="post-action"><a class="icon-button post-link" href="{{ post.article_url }}" target="_blank" rel="noopener noreferrer" aria-label="查看 {{ post.source_display }} 的{{ '订阅摘要' if post.get('source_type') == 'rss' else '原始推文' }}" title="查看原文">{{ icon('external', 16) }}</a></td>
 </tr>
-{% else %}<tr class="empty-row"><td colspan="3" class="empty"><span class="empty-icon">{{ icon('search', 25) }}</span><strong>暂时没有匹配的动态</strong><p>试试其他关键词，或调整账号与分类。</p></td></tr>{% endfor %}
+{% else %}<tr class="empty-row"><td colspan="3" class="empty"><span class="empty-icon">{{ icon('search', 25) }}</span><strong>暂时没有匹配的动态</strong><p>试试其他关键词，或调整来源与分类。</p></td></tr>{% endfor %}

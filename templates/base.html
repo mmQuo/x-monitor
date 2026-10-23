@@ -26,7 +26,7 @@
     <nav class="main-nav">
       <a class="nav-item{% if request.endpoint == 'dashboard' %} active{% endif %}" href="{{ url_for('dashboard') }}"{% if request.endpoint == 'dashboard' %} aria-current="page"{% endif %}>{{ icon('grid') }}<span>资讯总览</span>{{ icon('chevron', 14) }}</a>
       <a class="nav-item{% if request.blueprint == 'reports' %} active{% endif %}" href="{{ url_for('reports.index') }}"{% if request.blueprint == 'reports' %} aria-current="page"{% endif %}>{{ icon('document') }}<span>每日简报</span>{{ icon('chevron', 14) }}</a>
-      <a class="nav-item" href="{{ url_for('dashboard') }}#accounts-title">{{ icon('users') }}<span>监控账号</span>{{ icon('chevron', 14) }}</a>
+      <a class="nav-item" href="{{ url_for('dashboard') }}#accounts-title">{{ icon('users') }}<span>监控来源</span>{{ icon('chevron', 14) }}</a>
     </nav>
     <div class="sidebar-note">
       <span class="sidebar-note-icon">{{ icon('sparkles', 22) }}</span>
@@ -48,7 +48,7 @@
     </header>
     {% endif %}
     <main id="main-content">{% block content %}{% endblock %}</main>
-    <footer class="site-footer"><span>推文监控 <span class="footer-divider">/</span> 让重要的信息浮出水面</span><span>内容来自 X · AI 辅助整理</span></footer>
+    <footer class="site-footer"><span>推文监控 <span class="footer-divider">/</span> 让重要的信息浮出水面</span><span>内容来自 X 与 RSS · AI 辅助整理</span></footer>
   </div>
   {% block scripts %}{% endblock %}
 </body>

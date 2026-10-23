@@ -22,6 +22,7 @@ from werkzeug.security import check_password_hash
 from link_utils import link_label, linkify, links_for_post
 from report_web import reports
 from categories import CATEGORY_FILTERS, MACRO_CATEGORIES, MACRO_GROUP, matches_category
+from sources import RSS_FEEDS, article_url, rss_sources, set_rss_enabled, source_label, source_path
 
 BASE = Path(__file__).resolve().parent
 TARGETS = BASE / "config" / "targets.txt"
@@ -79,11 +80,13 @@ def normalize(value: str) -> str:
 
 
 def output_for(username: str) -> Path:
-    return BASE / f"{username.lower()}_posts.jsonl"
+    return source_path(BASE, username)
 
 
 def export_account_name(name: str) -> str:
     """Resolve an active account without accepting arbitrary file paths."""
+    if name.startswith("rss:") and name[4:] in RSS_FEEDS:
+        return name
     try:
         requested = normalize(name)
     except ValueError:
@@ -113,7 +116,7 @@ def csv_export_rows(path: Path, annotations: dict, link_cache: dict):
         return buffer.getvalue()
 
     yield "\ufeff" + row((
-        "推文ID", "账号", "发布时间", "保存时间", "原文", "推文链接",
+        "内容ID", "来源", "发布时间", "保存时间", "原文", "原文链接",
         "分类", "AI摘要", "中文翻译", "外部链接", "初次基线",
     ))
     with path.open(encoding="utf-8") as file:
@@ -127,7 +130,7 @@ def csv_export_rows(path: Path, annotations: dict, link_cache: dict):
             ai = annotations.get(str(post["id"])) or {}
             expanded_links = list(dict.fromkeys(links_for_post(post, link_cache).values()))
             yield row((
-                post["id"], post.get("username"), post.get("created_at"),
+                post["id"], source_label(post), post.get("created_at"),
                 post.get("observed_at"), post.get("text"), post.get("url"),
                 ai.get("category"), ai.get("summary"), ai.get("translation"),
                 "\n".join(expanded_links), "是" if post.get("baseline") else "否",
@@ -168,6 +171,13 @@ def read_status() -> dict:
         return {}
 
 
+def read_rss_status():
+    try:
+        return json.loads((BASE / "rss_data/status.json").read_text())
+    except (OSError, ValueError):
+        return {}
+
+
 def read_annotations() -> dict:
     try:
         with ANNOTATIONS.open(encoding="utf-8") as file:
@@ -194,8 +204,11 @@ def file_stamp(path: Path) -> tuple[int, int]:
 
 
 def feed_versions() -> tuple:
-    posts = tuple((path.name, file_stamp(path)) for path in sorted(BASE.glob("*_posts.jsonl")))
-    return posts, file_stamp(ANNOTATIONS), file_stamp(STATUS), file_stamp(TARGETS), file_stamp(LINK_CACHE)
+    paths = sorted(BASE.glob("*_posts.jsonl")) + sorted((BASE / "rss_data").glob("*_posts.jsonl"))
+    posts = tuple((str(path.relative_to(BASE)), file_stamp(path)) for path in paths)
+    status = (file_stamp(STATUS), file_stamp(BASE / "rss_data/status.json"))
+    targets = (file_stamp(TARGETS), file_stamp(BASE / "config/rss_sources.json"))
+    return posts, file_stamp(ANNOTATIONS), status, targets, file_stamp(LINK_CACHE)
 
 
 def pretty_time(value: str | None) -> str:
@@ -305,7 +318,10 @@ def logout():
 @login_required
 def dashboard():
     names = read_targets()
+    rss = {source["name"]: source for source in rss_sources(BASE, include_disabled=True)}
+    names += list(rss)
     status = read_status()
+    status.update(read_rss_status())
     annotations = read_annotations()
     link_cache = read_link_cache()
     selected = request.args.get("account", "").lower()
@@ -320,7 +336,8 @@ def dashboard():
     for name in names:
         count, recent, account_daily = read_posts(output_for(name))
         current_status = status.get(name.lower(), {})
-        accounts.append({"name": name, "count": count, "status": current_status,
+        metadata = rss.get(name, {"label": "@" + name, "kind": "x", "enabled": True})
+        accounts.append({"name": name, "count": count, "status": current_status, **metadata,
                          "today": account_daily.get(datetime.now().astimezone().date().isoformat(), 0)})
         if selected and name.lower() != selected:
             continue
@@ -338,10 +355,12 @@ def dashboard():
             if query and query not in haystack.lower():
                 continue
             post["account"] = name
+            post["source_display"] = metadata["label"]
+            post["article_url"] = article_url(dict(post, username=name))
             post["preview"] = " ".join(str(post.get("text", "")).split())
             post["ai"] = ai
             posts.append(post)
-    posts.sort(key=lambda post: (post.get("created_at", ""), int(post.get("id", 0))), reverse=True)
+    posts.sort(key=lambda post: (post.get("created_at", ""), str(post.get("id", ""))), reverse=True)
     today = datetime.now().astimezone().date()
     chart = activity_chart(daily)
     last_checked = max((item.get("status", {}).get("checked_at", "") for item in accounts), default="")
@@ -440,6 +459,17 @@ def create_target():
         flash(f"已添加 @{name}。下次轮询会建立首次基线。", "success")
     except ValueError as error:
         flash(str(error), "error")
+    return redirect(url_for("dashboard"))
+
+
+@app.post("/rss/<feed_id>/toggle")
+@login_required
+def toggle_rss(feed_id):
+    if feed_id not in RSS_FEEDS or request.form.get("enabled") not in {"0", "1"}:
+        abort(400)
+    enabled = request.form["enabled"] == "1"
+    set_rss_enabled(BASE, feed_id, enabled)
+    flash(f"{RSS_FEEDS[feed_id]['label']} 已{'启用' if enabled else '暂停'}。", "success")
     return redirect(url_for("dashboard"))
 
 
