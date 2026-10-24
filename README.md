@@ -18,6 +18,10 @@
 
 ![资讯总览](docs/dashboard-4x3.png)
 
+### 事件地图
+
+![事件地图](docs/map-4x3.png)
+
 ### 每日简报
 
 ![每日简报](docs/daily-4x3.png)

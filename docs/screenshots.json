@@ -1,7 +1,7 @@
 {
-  "captured_at": "2026-10-23T23:07:42+08:00",
+  "captured_at": "2026-10-24T12:54:49+08:00",
   "timezone": "Asia/Shanghai",
-  "source": "Saved X posts, AI annotations and daily reports",
+  "source": "Saved X posts, RSS articles, AI annotations, event locations and daily reports",
   "report_date": "2026-10-22",
   "screenshots": [
     {
@@ -12,7 +12,17 @@
         "height": 768
       },
       "rendered_items": 100,
-      "fully_visible_feed_rows": 7
+      "fully_visible_feed_rows": 8
+    },
+    {
+      "file": "map-4x3.png",
+      "route": "/map",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "rendered_items": 193,
+      "visible_markers": 14
     },
     {
       "file": "daily-4x3.png",

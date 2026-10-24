@@ -1,4 +1,4 @@
-"""Capture the dashboard and daily brief using saved data and Playwright Chromium."""
+"""Capture the dashboard, event map and daily brief using saved data and Chromium."""
 
 import argparse
 import json
@@ -22,9 +22,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def copy_display_data(source, destination):
-    paths = [source / "config/targets.txt", *source.glob("*_posts.jsonl")]
+    paths = [source / "config/targets.txt", *source.glob("*_posts.jsonl"),
+             *(source / "rss_data").glob("*_posts.jsonl")]
     paths += [source / name for name in (
-        "monitor_status.json", "ai_data/annotations.json", "link_data/links.json"
+        "monitor_status.json", "ai_data/annotations.json", "link_data/links.json",
+        "config/rss_sources.json", "rss_data/status.json",
+        "geo_data/locations.json", "geo_data/status.json",
     ) if (source / name).exists()]
     for path in paths:
         target = destination / path.relative_to(source)
@@ -69,8 +72,10 @@ def preview_app(snapshot, password):
     time.tzset()
     sys.path.insert(0, str(ROOT))
     import web_app
+    import map_web
 
     web_app.BASE = snapshot
+    map_web.BASE = snapshot
     web_app.TARGETS = snapshot / "config/targets.txt"
     web_app.LOCK = snapshot / "config/.targets.lock"
     web_app.STATUS = snapshot / "monitor_status.json"
@@ -85,19 +90,20 @@ def render(origin, password, day, output, executable):
     from playwright.sync_api import sync_playwright
 
     routes = [
-        ("dashboard-4x3.png", "/", 1024, 768, False),
-        ("daily-4x3.png", f"/reports?date={day}", 1024, 768, True),
+        ("dashboard-4x3.png", "/", "#post-rows tr[data-post-id]", "#live-state"),
+        ("map-4x3.png", "/map", ".map-event", "#map-live"),
+        ("daily-4x3.png", f"/reports?date={day}", ".report-event", None),
     ]
     manifest = {
         "captured_at": datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(timespec="seconds"),
         "timezone": "Asia/Shanghai",
-        "source": "Saved X posts, AI annotations and daily reports",
+        "source": "Saved X posts, RSS articles, AI annotations, event locations and daily reports",
         "report_date": day,
         "screenshots": [],
     }
     errors = []
     with sync_playwright() as playwright:
-        options = {"headless": True}
+        options = {"headless": True, "args": ["--enable-unsafe-swiftshader"]}
         if executable:
             options["executable_path"] = str(executable)
         browser = playwright.chromium.launch(**options)
@@ -108,6 +114,17 @@ def render(origin, password, day, output, executable):
                 locale="zh-CN", timezone_id="Asia/Shanghai", color_scheme="light",
             )
             page = context.new_page()
+            # Observe the map's public readiness API while preserving its normal rendering.
+            page.add_init_script("""document.addEventListener('DOMContentLoaded', () => {
+                if (!window.maplibregl) return;
+                const Map = maplibregl.Map;
+                maplibregl.Map = class extends Map {
+                    constructor(options) {
+                        super(options);
+                        window.screenshotMap = this;
+                    }
+                };
+            }, {once: true});""")
             page.on("pageerror", lambda error: errors.append(str(error)))
             page.on("response", lambda response: errors.append(
                 f"HTTP {response.status}: {response.url}"
@@ -117,14 +134,19 @@ def render(origin, password, day, output, executable):
             page.locator("#password").fill(password)
             page.locator(".login-form button").click()
             page.wait_for_url(origin + "/", wait_until="domcontentloaded")
-            for name, route, width, height, is_report in routes:
-                page.set_viewport_size({"width": width, "height": height})
+            for name, route, selector, live_state in routes:
                 page.goto(origin + route, wait_until="domcontentloaded")
-                selector = ".report-event" if is_report else "#post-rows tr[data-post-id]"
                 page.locator(selector).first.wait_for()
-                if not is_report:
+                if live_state:
+                    page.locator(live_state + ".connected").wait_for()
+                if route == "/map":
+                    page.locator(".map-marker").first.wait_for(timeout=60000)
                     page.wait_for_function(
-                        "document.querySelector('#live-state').classList.contains('connected')"
+                        """() => window.screenshotMap?.loaded()
+                            && window.screenshotMap.areTilesLoaded()
+                            && !window.screenshotMap.isMoving()
+                            && document.querySelector('#map-error').hidden""",
+                        timeout=60000,
                     )
                 page.evaluate("document.fonts.ready")
                 page.evaluate("scrollTo(0, 0)")
@@ -134,13 +156,15 @@ def render(origin, password, day, output, executable):
                         .filter(row => {const r = row.getBoundingClientRect();
                             return r.top >= 0 && r.bottom <= innerHeight;}).length
                 })""")
-                if dimensions["scrollWidth"] > width:
+                if dimensions["scrollWidth"] > 1024:
                     raise RuntimeError(f"Horizontal overflow in {name}: {dimensions}")
                 page.screenshot(path=str(output / name), animations="disabled")
-                item = {"file": name, "route": route, "viewport": {"width": width, "height": height},
+                item = {"file": name, "route": route, "viewport": {"width": 1024, "height": 768},
                         "rendered_items": page.locator(selector).count()}
-                if not is_report:
+                if route == "/":
                     item["fully_visible_feed_rows"] = dimensions["visible_rows"]
+                elif route == "/map":
+                    item["visible_markers"] = page.locator(".map-marker").count()
                 manifest["screenshots"].append(item)
                 print(json.dumps(item, ensure_ascii=False), flush=True)
         finally:
