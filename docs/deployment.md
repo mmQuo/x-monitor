@@ -134,6 +134,8 @@ systemctl restart x-monitor-web.service
 
 地图使用本地托管的 MapLibre GL JS 5.6.2（BSD-3-Clause）。「彩色地图」使用 OpenStreetMap 标准样式，「卫星影像」使用 Esri World Imagery；两者均按视口加载瓦片并保留来源署名，底图选择会在浏览器中保存。可通过 `?projection=globe&basemap=satellite` 直接查看卫星地球，影像拍摄时间随地区而异。国家轮廓与国家名称来自 Natural Earth 公有领域数据，作为本地基础图层；城市及区域使用 `config/map_places.json` 中的代表点。国家 / 区域标记在页面注明范围，地点覆盖以该表为准。修改地点表或识别规则时更新 `map_worker.VERSION` 并重启地图服务，以重新校验缓存。
 
+卫星瓦片通过需要登录的 `/map/tiles/satellite/{z}/{x}/{y}.jpg` 从本站加载，由服务器访问固定的 Esri 图源。每个 Web 进程在内存中缓存最多 512 张、16 MiB，正常复用 24 小时；图源短暂故障时可继续使用 7 天以内的缓存。浏览器私有缓存为 1 小时。底图请求失败会退避重试最多 3 次，也可点击「重新加载」。
+
 ## HTTPS 与实时更新
 
 网页监听 `127.0.0.1:8765`，通过 HTTPS 反向代理访问。会话 Cookie 启用 `Secure`，在 HTTPS 连接中保持登录。

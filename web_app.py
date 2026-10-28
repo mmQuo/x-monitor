@@ -279,15 +279,16 @@ def secure_headers(response):
     if request.blueprint == "maps":
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; script-src 'self'; worker-src 'self'; "
-            "style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob: https://tile.openstreetmap.org https://server.arcgisonline.com; "
-            "connect-src 'self' https://tile.openstreetmap.org https://server.arcgisonline.com; "
+            "style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob: https://tile.openstreetmap.org; "
+            "connect-src 'self' https://tile.openstreetmap.org; "
             "base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
         )
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-    response.headers["Cache-Control"] = (
-        "no-cache, no-transform" if response.mimetype == "text/event-stream" else "no-store"
-    )
+    if not (request.endpoint == "maps.satellite_tile" and response.status_code in (200, 304)):
+        response.headers["Cache-Control"] = (
+            "no-cache, no-transform" if response.mimetype == "text/event-stream" else "no-store"
+        )
     return response
 
 

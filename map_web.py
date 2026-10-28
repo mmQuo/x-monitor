@@ -12,11 +12,13 @@ from pathlib import Path
 from flask import Blueprint, Response, abort, jsonify, redirect, render_template, request, session, url_for
 
 from categories import CATEGORY_FILTERS, matches_category
+from map_tiles import SatelliteTiles, TileUnavailable
 from sources import active_source_names, article_url, rss_sources, source_label, source_path
 
 BASE = Path(__file__).resolve().parent
 maps = Blueprint('maps', __name__)
 _cache, _lock = {}, threading.Lock()
+_satellite = SatelliteTiles()
 
 
 def authenticated(func):
@@ -133,6 +135,23 @@ def data():
         response.headers['Content-Encoding'] = 'gzip'
     response.headers['Vary'] = 'Accept-Encoding'
     return response
+
+
+@maps.get('/map/tiles/satellite/<int:z>/<int:x>/<int:y>.jpg')
+def satellite_tile(z, x, y):
+    if not session.get('authenticated'):
+        abort(401)
+    try:
+        tile, stale = _satellite.get(z, x, y)
+    except ValueError:
+        abort(404)
+    except TileUnavailable:
+        return Response(status=503, headers={'Retry-After': '5'})
+    response = Response(tile.data, mimetype=tile.mimetype)
+    response.headers['Cache-Control'] = 'private, max-age=' + ('60' if stale else '3600')
+    response.headers['Vary'] = 'Cookie'
+    response.set_etag(hashlib.sha256(tile.data).hexdigest())
+    return response.make_conditional(request)
 
 
 @maps.get('/map/stream')

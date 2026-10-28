@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const slider = document.querySelector('#map-time');
   const workspace = document.querySelector('.map-workspace');
   const error = document.querySelector('#map-error');
+  const errorText = document.querySelector('#map-error-text');
+  const retryButton = document.querySelector('#map-retry');
+  const tileUrls = {satellite:'/map/tiles/satellite/{z}/{x}/{y}.jpg', basemap:'https://tile.openstreetmap.org/{z}/{x}/{y}.png'};
   const clear = document.querySelector('#map-clear');
   const parameters = new URLSearchParams(location.search);
   let savedView = {};
@@ -25,6 +28,45 @@ document.addEventListener('DOMContentLoaded', () => {
   const markers = new Map();
   let mapReady = false, overview = true, pendingFocus;
   let controller, sequence = 0, timer, anchor = Date.now(), mapFailed = false, stream;
+  let tileRetryTimer, tileWatchdog, tileAttempts = 0, tileFailed = false, tileReceived = false;
+  const activeTileSource = () => basemap === 'satellite' ? 'satellite' : 'basemap';
+
+  function clearTileTimers() {
+    clearTimeout(tileRetryTimer); tileRetryTimer = undefined;
+    clearTimeout(tileWatchdog); tileWatchdog = undefined;
+  }
+  function watchTiles() {
+    if (!tileWatchdog) tileWatchdog = setTimeout(() => {
+      tileWatchdog = undefined;
+      if (!document.hidden) tileFailure();
+    }, 20000);
+  }
+  function tileFailure() {
+    tileFailed = true;
+    error.hidden = false;
+    const name = basemap === 'satellite' ? '卫星影像' : '彩色底图';
+    errorText.textContent = tileAttempts < 3 ? `${name}加载暂缓，正在重试…` : `${name}暂时无法加载，可点击重新加载。`;
+    if (!tileRetryTimer && tileAttempts < 3) tileRetryTimer = setTimeout(() => {
+      tileAttempts++;
+      reloadTiles();
+    }, 2000 * 2 ** tileAttempts);
+  }
+  function reloadTiles(manual = false) {
+    if (!mapReady || mapFailed) return;
+    clearTileTimers();
+    if (manual) tileAttempts = 0;
+    tileFailed = false; tileReceived = false; error.hidden = true;
+    const source = activeTileSource();
+    map.getSource(source)?.setTiles([tileUrls[source]]);
+    watchTiles();
+  }
+  function tilesSettled() {
+    // Failed tiles can also count as "loaded" in MapLibre. Keep the error visible.
+    if (mapReady && tileReceived && !tileFailed && map.areTilesLoaded()) {
+      clearTileTimers(); tileAttempts = 0; error.hidden = true;
+    }
+  }
+  retryButton.addEventListener('click', () => reloadTiles(true));
   const el = (tag, text, className) => {
     const node = document.createElement(tag);
     if (text !== undefined) node.textContent = text;
@@ -75,12 +117,15 @@ document.addEventListener('DOMContentLoaded', () => {
     map.setPaintProperty('boundaries', 'line-opacity', basemap === 'satellite' ? 0.45 : 0.6);
   }
   basemapSelect.addEventListener('change', () => {
+    clearTileTimers(); tileAttempts = 0; tileFailed = false; tileReceived = false;
+    if (!mapFailed) error.hidden = true;
     basemap = basemapSelect.value;
     root.dataset.basemap = basemap;
     saveView();
     const url = new URL(location.href); url.searchParams.set('basemap', basemap);
     history.replaceState(null, '', url);
     basemapLayers();
+    if (mapReady && !mapFailed) reloadTiles();
   });
 
   function focusPlaces(places) {
@@ -317,9 +362,9 @@ document.addEventListener('DOMContentLoaded', () => {
       maxPitch:0, dragRotate:false, touchPitch:false, renderWorldCopies:false, trackResize:false,
       style:{version:8, projection:{type:projection}, sources:{
         countries:{type:'geojson', data:'/static/map-countries.geojson'},
-        basemap:{type:'raster', tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize:256,
+        basemap:{type:'raster', tiles:[tileUrls.basemap], tileSize:256,
           attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>'},
-        satellite:{type:'raster', tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'], tileSize:256, maxzoom:18,
+        satellite:{type:'raster', tiles:[tileUrls.satellite], tileSize:256, maxzoom:18,
           attribution:'Imagery © <a href="https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9" target="_blank" rel="noopener">Esri, Vantor, Earthstar Geographics & GIS User Community</a>'}},
         layers:[{id:'background', type:'background', paint:{'background-color':'#aad3df'}},
           {id:'land', type:'fill', source:'countries', paint:{'fill-color':'#dce7c9'}},
@@ -328,20 +373,25 @@ document.addEventListener('DOMContentLoaded', () => {
           {id:'boundaries', type:'line', source:'countries', maxzoom:5, paint:{'line-color':'#8b9b83', 'line-width':0.65, 'line-opacity':0.6}}]}});
     map.touchZoomRotate.disableRotation();
     map.addControl(new maplibregl.NavigationControl({showCompass:false}), 'top-right');
-    map.on('load', () => {
+    map.once('style.load', () => {
       mapReady = true; map.setProjection({type:projection}); basemapLayers(); worldView();
       if (pendingFocus) focusPlaces(pendingFocus);
       renderMarkers();
+      watchTiles();
     });
     map.on('movestart', event => { if (event.originalEvent) overview = false; });
     map.on('moveend', renderMarkers);
     // Reuse DOM markers during rotation, zoom and projection transitions.
     map.on('render', renderMarkers);
-    let tileErrors = 0;
-    map.on('error', () => {
-      if (++tileErrors >= 3) { error.textContent = '底图加载暂缓，事件列表仍可浏览。'; error.hidden = false; }
+    map.on('error', event => {
+      if (event.sourceId === activeTileSource()) tileFailure();
     });
-    map.on('idle', () => { if (map.areTilesLoaded()) { error.hidden = true; tileErrors = 0; } });
+    map.on('sourcedataloading', event => { if (event.sourceId === activeTileSource()) watchTiles(); });
+    map.on('sourcedata', event => {
+      if (event.sourceId === activeTileSource() && event.tile?.state === 'loaded') tileReceived = true;
+      tilesSettled();
+    });
+    map.on('idle', tilesSettled);
     new ResizeObserver(() => {
       const panel = document.querySelector('.map-canvas-panel');
       if (!panel.clientWidth || !panel.clientHeight) return;
@@ -350,7 +400,8 @@ document.addEventListener('DOMContentLoaded', () => {
       renderMarkers();
     }).observe(document.querySelector('.map-canvas-panel'));
   } catch {
-    mapFailed = true; error.textContent = '当前浏览器无法显示地图，可切换事件列表查看内容。'; error.hidden = false;
+    mapFailed = true; clearTileTimers(); retryButton.hidden = true;
+    errorText.textContent = '当前浏览器无法显示地图，可切换事件列表查看内容。'; error.hidden = false;
   }
   const interval = setInterval(() => refresh(), 30000);
   function connect() {
@@ -360,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
     stream.addEventListener('error', () => { state.textContent = '重连中'; state.classList.remove('connected'); });
   }
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
-  window.addEventListener('pagehide', () => { clearInterval(interval); controller?.abort(); stream?.close(); stream = undefined; });
+  window.addEventListener('pagehide', () => { clearInterval(interval); clearTileTimers(); controller?.abort(); stream?.close(); stream = undefined; });
   window.addEventListener('pageshow', event => { if (event.persisted) { connect(); refresh(); } });
   connect();
   refresh();
