@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import daily_worker as worker
 from report_store import ReportStore, TZ, schedule_due
@@ -15,6 +15,11 @@ def event(ids, title="Example model release"):
     return {"title": title, "summary": "The company announced a model release.",
             "category": "AI资讯", "importance": 4, "reason": "New release details.",
             "status": "报道", "source_ids": ids}
+
+
+def model_response(value):
+    return worker.httpx.Response(200, json={"choices": [
+        {"finish_reason": "stop", "message": {"content": json.dumps(value)}}]})
 
 
 class DailyTests(unittest.TestCase):
@@ -104,6 +109,121 @@ class DailyTests(unittest.TestCase):
             worker.extract_schema({"events": [event(["1"])]}, {"1", "2"})
         validated = worker.extract_schema({"events": [event(["1"])], "ignored_ids": ["2"]}, {"1", "2"})
         self.assertEqual(len(validated["events"]), 1)
+
+    def test_short_references_preserve_long_ids_rss_and_fragments(self):
+        ids = ["2000000000000000001", "rss:" + "ab" * 32, "2000000000000000001.2"]
+        posts = [{"id": source, "text": "A product named S1"} for source in ids]
+        for payload in ({"posts": posts}, {"events": [event(ids)]},
+                        {"candidate": event(ids), "sources": posts}):
+            with self.subTest(stage=next(iter(payload))):
+                original = json.dumps(payload)
+                wire, references = worker.short_references(payload)
+                self.assertEqual(json.dumps(payload), original)
+                self.assertEqual(references, dict(zip(["S1", "S2", "S3"], ids)))
+                for source in ids:
+                    self.assertNotIn(source, json.dumps(wire))
+                item = event(["S1", "S3"], "A product named S1")
+                item["timeline"] = [{"text": "S1 was released", "source_ids": ["S3"]}]
+                restored = worker.restore_references({"events": [item], "ignored_ids": ["S2"]}, references)
+                self.assertEqual(restored["events"][0]["source_ids"], [ids[0], ids[2]])
+                self.assertEqual(restored["events"][0]["timeline"][0]["source_ids"], [ids[2]])
+                self.assertEqual(restored["ignored_ids"], [ids[1]])
+                self.assertEqual(restored["events"][0]["title"], "A product named S1")
+                self.assertEqual(restored["events"][0]["timeline"][0]["text"], "S1 was released")
+
+    def test_alias_validation_stays_strict_and_timeline_requires_event_source(self):
+        references = {"S1": "2000000000000000001", "S2": "2000000000000000002"}
+        for source_ids in (["S99"], [1], ["2000000000000000001"], ["s1"], "S1", [], None):
+            with self.subTest(source_ids=source_ids), self.assertRaises(worker.CitationError):
+                item = worker.restore_references(event(source_ids), references)
+                worker.event_schema(item, set(references.values()))
+        with self.assertRaises(worker.CitationError):
+            worker.restore_references({"events": [], "ignored_ids": ["S99"]}, references)
+        item = event(["S1"])
+        item["timeline"] = [{"text": "Unrelated source", "source_ids": ["S2"]}]
+        with self.assertRaises(worker.CitationError):
+            worker.event_schema(worker.restore_references(item, references), set(references.values()), timeline=True)
+
+    def test_invalid_alias_retry_gets_feedback_and_only_saves_valid_original_ids(self):
+        run_id = self.store.enqueue("2026-01-02")
+        original_id = "2000000000000000001"
+        requests = []
+        def post(url, **kwargs):
+            messages = kwargs["json"]["messages"]
+            requests.append(messages)
+            self.assertIsNone(self.store.step(run_id, "extract:0"))
+            self.assertLessEqual(sum(len(m["content"].encode()) for m in messages), worker.PROMPT_BYTES)
+            payload = json.loads(messages[1]["content"])
+            self.assertEqual(payload["posts"][0]["id"], "S1")
+            ids = ["S99"] if len(requests) == 1 else ["S1"]
+            return model_response({"events": [event(ids)], "ignored_ids": []})
+        flow = worker.Workflow(self.store, run_id, Mock(post=post))
+        with patch.object(worker.time, "sleep"):
+            result = flow.extract_group("extract:0", "2026-01-02", [{"id": original_id}])
+        self.assertEqual(len(requests), 2)
+        self.assertIn("本批允许的来源编号：S1", requests[1][-1]["content"])
+        self.assertEqual(result["events"][0]["source_ids"], [original_id])
+        self.assertEqual(self.store.step(run_id, "extract:0"), result)
+
+    def test_repeated_invalid_citations_split_and_resume_completed_sub_batches(self):
+        run_id = self.store.enqueue("2026-01-02")
+        group = [{"id": "2000000000000000001", "text": "first"},
+                 {"id": "rss:" + "cd" * 32, "text": "second"}]
+        seen, fixed = [], False
+        def post(url, **kwargs):
+            posts = json.loads(kwargs["json"]["messages"][1]["content"])["posts"]
+            texts = [p["text"] for p in posts]
+            seen.append(texts)
+            invalid = len(posts) > 1 or (texts == ["second"] and not fixed)
+            ids = ["S99"] if invalid else [posts[0]["id"]]
+            return model_response({"events": [event(ids)], "ignored_ids": []})
+        client = Mock(post=post)
+        flow = worker.Workflow(self.store, run_id, client)
+        with patch.object(worker.time, "sleep"), self.assertRaises(worker.CitationError):
+            flow.extract_group("extract:0", "2026-01-02", group)
+        self.assertEqual(seen, [["first", "second"]] * 3 + [["first"]] + [["second"]] * 3)
+        self.assertIsNone(self.store.step(run_id, "extract:0"))
+        self.assertTrue(self.store.step(run_id, "extract:0:split")["enabled"])
+        self.assertEqual(self.store.step(run_id, "extract:0:missing:0")["events"][0]["source_ids"], [group[0]["id"]])
+        fixed = True
+        resumed = worker.Workflow(self.store, run_id, client)
+        result = resumed.extract_group("extract:0", "2026-01-02", group)
+        self.assertEqual(len(seen), 8)
+        self.assertEqual(seen[-1], ["second"])
+        self.assertEqual({i for e in result["events"] for i in e["source_ids"]}, {p["id"] for p in group})
+        resumed.extract_group("extract:0", "2026-01-02", group)
+        self.assertEqual(len(seen), 8)
+
+    def test_selection_retry_identifies_source_limit_without_truncating_evidence(self):
+        run_id = self.store.enqueue("2026-01-02")
+        ids = [str(2000000000000000000 + i) for i in range(6)]
+        requests = []
+        def post(url, **kwargs):
+            messages = kwargs["json"]["messages"]
+            requests.append(messages)
+            self.assertIsNone(self.store.step(run_id, "select:0:0"))
+            payload = json.loads(messages[1]["content"])
+            sources = [source for e in payload["events"] for source in e["source_ids"]]
+            return model_response({"events": [event(sources if len(requests) == 1 else sources[1:])]})
+        flow = worker.Workflow(self.store, run_id, Mock(post=post))
+        with patch.object(worker.time, "sleep"):
+            result = flow.call("select:0:0", worker.SELECT.replace("LIMIT", "1"),
+                               {"events": [event([source]) for source in ids]},
+                               lambda value: worker.select_schema(value, set(ids), 1))
+        self.assertEqual(len(requests), 2)
+        self.assertIn("第 1 个事件有 6 条", requests[1][-1]["content"])
+        self.assertIn("最多引用 5 条来源", requests[1][-1]["content"])
+        self.assertEqual(result["events"][0]["source_ids"], ids[1:])
+
+    def test_legacy_checkpoints_with_original_ids_skip_model_calls(self):
+        run_id = self.store.enqueue("2026-01-02")
+        original_id = "2000000000000000001"
+        saved = {"events": [event([original_id])], "ignored_ids": []}
+        self.store.save_step(run_id, "extract:0", saved)
+        client = Mock()
+        flow = worker.Workflow(self.store, run_id, client)
+        self.assertEqual(flow.extract_group("extract:0", "2026-01-02", [{"id": original_id}]), saved)
+        client.post.assert_not_called()
 
     def test_missing_posts_are_repaired_without_repeating_completed_inputs(self):
         run_id = self.store.enqueue("2026-01-02")
@@ -202,13 +322,13 @@ class DailyTests(unittest.TestCase):
             payload = json.loads(body["messages"][1]["content"])
             requests.append(payload)
             if "posts" in payload:
-                result = {"events": [event(["1", "2"])], "ignored_ids": []}
+                result = {"events": [event([p["id"] for p in payload["posts"]])], "ignored_ids": []}
             elif "events" in payload:
                 result = {"events": payload["events"]}
             else:
                 self.assertEqual(payload["sources"][0]["text"], "Model release announcement")
                 item = dict(payload["candidate"])
-                item["timeline"] = [{"text": "Launch date confirmed", "source_ids": ["2"]}]
+                item["timeline"] = [{"text": "Launch date confirmed", "source_ids": [payload["sources"][1]["id"]]}]
                 result = {"event": item}
             class Response:
                 is_error = False

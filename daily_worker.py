@@ -47,7 +47,7 @@ SELECT = RULES + """
 输出 {"events":[{"title":"具体标题","summary":"最多140字的关键事实",
 "category":"简短主题","importance":1,"reason":"最多35字的入选理由",
 "status":"报道或待核实或观点","source_ids":["ID"]}]}。
-同一事件合并来源；每个事件选最多5条最能支持结论的原帖 ID。只做有根据的合并。
+同一事件合并来源；合并后每个事件的 source_ids 仍最多5条，选取最能支持主要事实的来源，并据此调整摘要。只做有根据的合并。
 不能把不同事件归为一个宽泛的“市场动态”或“行业进展”。"""
 VERIFY = RULES + """
 根据附带的原帖节选核对候选事件，然后写日报条目。候选摘要只是待核对材料。
@@ -68,6 +68,52 @@ class WorkflowError(Exception):
 
 class OutputLimitError(WorkflowError):
     pass
+
+
+class CitationError(WorkflowError):
+    pass
+
+
+def short_references(payload):
+    """Only the wire payload uses short IDs; checkpoints retain original IDs."""
+    ids = []
+    for field in ("posts", "sources"):
+        ids.extend(item["id"] for item in payload.get(field, []))
+    events = list(payload.get("events", []))
+    if payload.get("candidate"):
+        events.append(payload["candidate"])
+    ids.extend(source for event in events for source in event["source_ids"])
+    forward = {source: f"S{index + 1}" for index, source in enumerate(dict.fromkeys(ids))}
+
+    def event_ids(event):
+        return {**event, "source_ids": [forward[source] for source in event["source_ids"]]}
+
+    wire = dict(payload)
+    for field in ("posts", "sources"):
+        if field in wire:
+            wire[field] = [{**item, "id": forward[item["id"]]} for item in wire[field]]
+    if "events" in wire:
+        wire["events"] = [event_ids(event) for event in wire["events"]]
+    if wire.get("candidate"):
+        wire["candidate"] = event_ids(wire["candidate"])
+    return wire, {short: original for original, short in forward.items()}
+
+
+def restore_references(value, references):
+    """Resolve exact local aliases, rejecting invented, numeric or shortened IDs."""
+    if isinstance(value, list):
+        return [restore_references(item, references) for item in value]
+    if not isinstance(value, dict):
+        return value
+    result = {}
+    for field, item in value.items():
+        if field in {"source_ids", "ignored_ids"}:
+            if not isinstance(item, list) or any(not isinstance(source, str) or source not in references for source in item):
+                raise CitationError("模型返回了无法匹配的来源编号")
+            result[field] = [references[source] for source in item]
+        else:
+            result[field] = restore_references(item, references)
+    return result
 
 
 def byte_len(value):
@@ -202,7 +248,7 @@ def text_field(value, name, limit, required=True):
 
 def citations(value, allowed):
     if not isinstance(value, list) or not value or any(not isinstance(i, str) or i not in allowed for i in value):
-        raise WorkflowError("模型返回了无效的原帖引用，重试可继续已完成的步骤")
+        raise CitationError("模型返回了无法匹配的来源编号")
     return list(dict.fromkeys(value))
 
 
@@ -238,7 +284,7 @@ def extract_schema(value, allowed, partial=False):
     events = [event_schema(item, allowed) for item in value["events"]]
     ignored = value.get("ignored_ids", [])
     if not isinstance(ignored, list) or any(not isinstance(i, str) or i not in allowed for i in ignored):
-        raise WorkflowError("模型返回的处理范围无效")
+        raise CitationError("模型返回了无法匹配的来源编号")
     covered = set(ignored) | {i for e in events for i in e["source_ids"]}
     if covered != allowed and not partial:
         raise WorkflowError("本批仍有推文未处理，重试可继续已完成的步骤")
@@ -249,11 +295,14 @@ def extract_schema(value, allowed, partial=False):
 
 
 def select_schema(value, allowed, limit):
-    if not isinstance(value, dict) or not isinstance(value.get("events"), list) or not 1 <= len(value["events"]) <= limit:
-        raise WorkflowError("模型返回的重点事件数量无效")
+    if not isinstance(value, dict) or not isinstance(value.get("events"), list):
+        raise WorkflowError("模型未返回有效的重点事件列表")
+    if not 1 <= len(value["events"]) <= limit:
+        raise WorkflowError(f"重点事件数量为 {len(value['events'])}，须保留 1 至 {limit} 个")
     events = [event_schema(item, allowed) for item in value["events"]]
-    if any(len(e["source_ids"]) > 5 for e in events):
-        raise WorkflowError("模型返回的事件来源数量超出限制")
+    excess = [f"第 {index + 1} 个事件有 {len(e['source_ids'])} 条" for index, e in enumerate(events) if len(e["source_ids"]) > 5]
+    if excess:
+        raise WorkflowError("事件来源超限：" + "、".join(excess) + "；每个事件最多引用 5 条来源，请保留最能支持主要事实的来源，并据此调整摘要")
     return {"events": events}
 
 
@@ -265,13 +314,17 @@ class Workflow:
         cached = self.store.step(self.run_id, key)
         if cached is not None:
             return validate(cached)
-        content = encode(payload)
+        wire, references = short_references(payload)
+        content = encode(wire)
+        if references:
+            instruction += "\n来源使用本批短编号（如 S1、S2）。source_ids 和 ignored_ids 必须逐字使用输入编号字符串；时间线引用还必须包含在该事件的 source_ids 中。"
         if len((instruction + content).encode("utf-8")) > PROMPT_BYTES:
             raise WorkflowError("处理材料超过上下文限制，请检查分批设置")
         last_error = "模型请求失败"
-        body = {"model": MODEL, "messages": [
+        messages = [
             {"role": "system", "content": instruction},
-            {"role": "user", "content": content}],
+            {"role": "user", "content": content}]
+        body = {"model": MODEL, "messages": messages,
             "temperature": 0.1, "max_tokens": 7000}
         # DeepSeek defaults to extended reasoning, which consumes the same output
         # budget as the JSON and caused extraction to truncate and repeat batches.
@@ -296,7 +349,7 @@ class Workflow:
                         raise OutputLimitError("模型输出达到长度限制，请重试")
                     raw = choice["message"]["content"].strip()
                     raw = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw, flags=re.I)
-                    checked = validate(json.loads(raw))
+                    checked = validate(restore_references(json.loads(raw), references))
                     self.store.save_step(self.run_id, key, checked)
                     logging.info("Daily report %s step %s completed in %.1fs", self.run_id, key, time.monotonic() - started)
                     return checked
@@ -305,6 +358,15 @@ class Workflow:
             except WorkflowError as error:
                 last_error = str(error)
                 if "HTTP" in last_error:
+                    raise
+                # A deterministic model needs correction feedback, not the same
+                # unchanged prompt three times. Never echo untrusted output.
+                feedback = "上次输出未通过校验：" + last_error + "。请修正并重新输出完整 JSON。"
+                if references:
+                    feedback += "本批允许的来源编号：" + ", ".join(references) + "。时间线引用必须同时列入该事件的 source_ids。"
+                if len((instruction + content + feedback).encode("utf-8")) <= PROMPT_BYTES:
+                    body["messages"] = messages + [{"role": "user", "content": feedback}]
+                if attempt == 2:
                     raise
             except httpx.HTTPError:
                 last_error = "连接模型接口超时或网络异常"
@@ -322,11 +384,11 @@ class Workflow:
             try:
                 result = self.call(key, EXTRACT, {"day": day, "posts": group},
                                    lambda v: extract_schema(v, ids, partial=len(group) > 1))
-            except OutputLimitError:
+            except (OutputLimitError, CitationError):
                 if len(group) <= 1:
                     raise
                 self.store.save_step(self.run_id, key + ":split", {"enabled": True})
-                logging.info("Daily report %s: splitting an oversized extraction batch", self.run_id)
+                logging.info("Daily report %s: splitting extraction batch %s after validation/output failure", self.run_id, key)
         if result is None:
             result = {"events": [], "ignored_ids": [], "missing_ids": sorted(ids)}
         missing = set(result.get("missing_ids", []))
