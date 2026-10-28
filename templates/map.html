@@ -3,7 +3,7 @@
 {% block breadcrumb %}事件地图{% endblock %}
 {% block header_status %}<span class="header-cadence">{{ icon('map', 15) }}按地点浏览资讯</span><span id="map-live" class="live-state" role="status">加载中</span>{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='vendor/maplibre/maplibre-gl.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='map.css', v='6') }}">{% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='vendor/maplibre/maplibre-gl-csp.js') }}" defer></script><script src="{{ url_for('static', filename='map.js', v='6') }}" defer></script>{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='vendor/maplibre/maplibre-gl-csp.js') }}" defer></script><script src="{{ url_for('static', filename='map.js', v='7') }}" defer></script>{% endblock %}
 {% block content %}
 <section class="map-page" data-worker-url="{{ url_for('static', filename='vendor/maplibre/maplibre-gl-csp-worker.js') }}">
   <form id="map-filters" class="map-filters" role="search">

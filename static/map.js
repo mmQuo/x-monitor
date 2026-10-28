@@ -57,7 +57,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (manual) tileAttempts = 0;
     tileFailed = false; tileReceived = false; error.hidden = true;
     const source = activeTileSource();
-    map.getSource(source)?.setTiles([tileUrls[source]]);
+    // MapLibre 5.6 can render failed raster tiles without textures after setTiles().
+    // Recreate only this source/layer so retries keep the camera and news state.
+    const style = map.getStyle();
+    const layer = style.layers.find(item => item.id === source);
+    const specification = style.sources[source];
+    map.removeLayer(source);
+    map.removeSource(source);
+    map.addSource(source, {...specification, tiles:[tileUrls[source]]});
+    map.addLayer(layer, 'boundaries');
     watchTiles();
   }
   function tilesSettled() {
