@@ -19,13 +19,16 @@
 .map-day { position: sticky; top: 0; z-index: 1; padding: 6px 17px; background: #f7f9f5; color: #607164; border-bottom: 1px solid #edf0ea; font-size: 11px; }
 .map-event { padding: 13px 17px; border-bottom: 1px solid #e9ede6; }
 .map-event:hover { background: #fbfcf9; }
-.map-event[open] { background: #f6faf2; }
+.map-event:has(.map-event-details[open]) { background: #f6faf2; }
 .map-event.focused { box-shadow: inset 3px 0 #56875c; background: #f3f8ef; }
-.map-event summary { cursor: pointer; list-style: none; }
-.map-event summary::-webkit-details-marker { display: none; }
+.map-event-focus { display: block; width: 100%; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.map-event-focus:focus-visible, .map-event-details > summary:focus-visible { outline: 2px solid #28533b; outline-offset: 3px; border-radius: 2px; }
+.map-event-details { margin-top: 6px; }
+.map-event-details > summary { width: fit-content; color: #547358; font-size: 11px; cursor: pointer; list-style: none; }
+.map-event-details > summary::-webkit-details-marker { display: none; }
 .map-event-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; color: #667269; font-size: 10px; margin-bottom: 6px; }
 .map-event-meta time { margin-left: auto; font-variant-numeric: tabular-nums; }
-.map-event-title { color: #283f33; font-size: 13px; font-weight: 500; line-height: 1.7; }
+.map-event-title { display: block; color: #283f33; font-size: 13px; font-weight: 500; line-height: 1.7; }
 .map-event-places { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
 .place-chip { padding: 3px 7px; font-size: 10px; color: #4a6854; background: #eef4e9; border: 1px solid #dee9d9; border-radius: 4px; cursor: pointer; }
 .place-chip:hover, .place-chip.selected { background: #dce9d3; border-color: #99b68c; }

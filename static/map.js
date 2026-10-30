@@ -216,37 +216,44 @@ document.addEventListener('DOMContentLoaded', () => {
         day = stamp.slice(0,5);
         fragment.append(el('div', day + ' · 北京时间', 'map-day'));
       }
-      const card = el('details', undefined, 'map-event');
-      card.dataset.id = event.id; card.open = opened.has(event.id);
+      const card = el('article', undefined, 'map-event');
+      card.dataset.id = event.id;
       card.classList.toggle('focused', focusedEvent === event.id);
-      const summary = el('summary');
-      summary.addEventListener('click', () => {
+      const focus = el('button', undefined, 'map-event-focus');
+      focus.type = 'button';
+      focus.title = '在地图上定位';
+      focus.addEventListener('click', () => {
         focusedEvent = event.id;
         focusedPlaces = new Set(event.locations.map(p => p.id));
         list.querySelectorAll('.map-event').forEach(row => row.classList.toggle('focused', row.dataset.id === event.id));
         focusPlaces(event.locations);
         renderMarkers();
       });
-      const meta = el('div', undefined, 'map-event-meta');
+      const meta = el('span', undefined, 'map-event-meta');
       meta.append(el('span', event.category, 'category-tag'), el('span', event.sources[0]?.source_label || ''));
       const location = el('span', event.locations.map(p => p.name).join(' / '));
       location.title = event.locations.map(p => `${p.name} · ${p.precision}`).join(' / ');
       meta.append(location);
       const time = el('time', stamp.slice(-5)); time.dateTime = event.created_at; meta.append(time);
-      summary.append(meta, el('div', event.summary, 'map-event-title')); card.append(summary);
+      focus.append(meta, el('span', event.summary, 'map-event-title')); card.append(focus);
+      const details = el('details', undefined, 'map-event-details');
+      details.dataset.id = event.id; details.open = opened.has(event.id);
+      const toggle = el('summary');
+      toggle.append(el('span', '查看详情', 'expand-label'), el('span', '收起详情', 'collapse-label'));
+      details.append(toggle);
       const chips = el('div', undefined, 'map-event-places');
       for (const place of event.locations) {
         const chip = el('button', `${place.name} · ${place.precision}`, 'place-chip' + (selected.has(place.id) ? ' selected' : ''));
         chip.type = 'button'; chip.addEventListener('click', () => selectPlaces([place])); chips.append(chip);
       }
-      card.append(chips);
+      details.append(chips);
       for (const place of event.locations) {
-        card.append(el('p', `${place.relation === 'scope' ? '涉及地区' : '事件地点'} · ${place.name}：${place.evidence}`, 'map-evidence'));
+        details.append(el('p', `${place.relation === 'scope' ? '涉及地区' : '事件地点'} · ${place.name}：${place.evidence}`, 'map-evidence'));
       }
       if (event.translation && event.translation !== event.text) {
-        card.append(el('p', '中文译文', 'map-original-label'), el('div', event.translation, 'map-original'));
+        details.append(el('p', '中文译文', 'map-original-label'), el('div', event.translation, 'map-original'));
       }
-      card.append(el('p', '来源原文', 'map-original-label'), el('div', event.text, 'map-original'));
+      details.append(el('p', '来源原文', 'map-original-label'), el('div', event.text, 'map-original'));
       const sources = el('div', undefined, 'map-event-sources');
       for (const source of event.sources) {
         let url;
@@ -254,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!['http:', 'https:'].includes(url.protocol)) continue;
         const a = el('a', `${source.source_label} ↗`); a.href = url.href; a.target = '_blank'; a.rel = 'noopener noreferrer'; sources.append(a);
       }
-      card.append(sources); fragment.append(card);
+      details.append(sources); card.append(details); fragment.append(card);
     }
     if (!shown.length) fragment.append(el('p', selected.size ? '当前时间与筛选条件下，这个地点暂无资讯。' : '当前范围暂无已定位资讯。可调整时间或筛选条件，新内容识别完成后会自动出现。', 'map-empty'));
     list.replaceChildren(fragment);
