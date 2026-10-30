@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}实时 Top 10 · 推文监控{% endblock %}
+{% block breadcrumb %}实时 Top 10{% endblock %}
+{% block header_status %}<span class="header-cadence">{{ icon('clock', 15) }}最近 24 小时 · 北京时间</span><span id="top-live" class="live-state" role="status">连接中</span>{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='top.css', v='1') }}">{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='top.js', v='1') }}" defer></script>{% endblock %}
+{% block content %}
+<section class="panel top-page" aria-label="实时重要事件">
+  <div class="top-toolbar"><h2>正在发生</h2><span>按影响与最新进展排序</span><button class="btn btn-outline-secondary" type="button" id="top-refresh">{{ icon('refresh', 14) }}刷新</button></div>
+  <div id="top-content">{% include '_top_events.html' %}</div>
+</section>
+{% endblock %}

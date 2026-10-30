@@ -40,7 +40,7 @@ install -d -o xmonitorweb -g xmonitorweb -m 2770 config
 chown xmonitorweb:xmonitorweb config/targets.txt
 chmod 660 config/targets.txt
 install -d -o xmonitorai -g xmonitorweb -m 2750 ai_data link_data
-install -d -o xmonitorai -g xmonitorweb -m 2770 clean_data report_data
+install -d -o xmonitorai -g xmonitorweb -m 2770 clean_data event_data report_data
 ```
 
 根目录的 setgid 位使新建原帖和状态文件继承共享组。若已运行过采集，先将已有的 `*_posts.jsonl`、`*.baseline_at` 和 `monitor_status.json` 设为 `xmonitorweb` 组可读。`accounts.db` 保持 `0600` 权限。源码、静态资源及虚拟环境为两个服务用户提供读取 / 执行权限。已存在的用户和目录沿用即可。
@@ -63,6 +63,7 @@ install -o root -g xmonitorweb -m 640 deploy/ai.env.example /etc/x-monitor-ai.en
 | `XMONITOR_AI_API_KEY` | 模型服务密钥 |
 | `XMONITOR_AI_MODEL` | 网关支持的模型 ID；摘要和日报共享此配置 |
 | `XMONITOR_REPORT_DIR` | 可选，默认项目下 `report_data/`；改变后需同时调整网页 / 日报环境与服务写入目录 |
+| `XMONITOR_EVENT_DIR` | 可选，默认项目下 `event_data/`；改变后需同时调整事件 / 网页 / 日报环境与事件服务写入目录 |
 
 在服务器终端生成会话密钥和密码哈希，再填入网页环境文件：
 
@@ -80,7 +81,7 @@ cp deploy/systemd/x-monitor-*.service /etc/systemd/system/
 cp deploy/systemd/x-monitor-links.timer /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable --now x-monitor-monitor.service x-monitor-ai.service x-monitor-web.service
-systemctl enable --now x-monitor-clean.service x-monitor-daily.service x-monitor-links.timer
+systemctl enable --now x-monitor-clean.service x-monitor-events.service x-monitor-daily.service x-monitor-links.timer
 ```
 
 | 单元 | 职责 / 周期 | 可写目录 |
@@ -88,12 +89,28 @@ systemctl enable --now x-monitor-clean.service x-monitor-daily.service x-monitor
 | `x-monitor-monitor.service` | 默认每 300 秒检查账号 | 根目录原帖、基线和状态、会话数据库 |
 | `x-monitor-rss.service` | 每 300 秒检查已启用的 RSS 来源 | `rss_data/` |
 | `x-monitor-ai.service` | 每 5 秒处理一批，最多 10 条 | `ai_data/` |
-| `x-monitor-web.service` | Gunicorn，2 个进程、每个 16 个线程 | `config/`、`report_data/` |
+| `x-monitor-web.service` | Gunicorn，2 个进程、每个 16 个线程 | `config/`、`report_data/`、`event_data/` |
 | `x-monitor-links.timer` | 启动后 3 分钟、以后每 10 分钟运行短链服务 | `link_data/` |
 | `x-monitor-clean.service` | 每 30 秒处理今天和昨天 | `clean_data/` |
-| `x-monitor-daily.service` | 北京时间 08:00 为前一天排队，持续处理网页任务 | `report_data/`、`clean_data/` |
+| `x-monitor-events.service` | 持续提取新帖事实、归并事件并更新摘要，每轮后等待 15 秒 | `event_data/`、`clean_data/` |
+| `x-monitor-daily.service` | 北京时间 08:00 为前一天排队，汇总已保存事实 | `report_data/`、`clean_data/`、`event_data/` |
 
 网页和 AI 服务启用 `ProtectSystem=strict`，按表中的目录配置写入权限。日报 / 预清洗使用共享组及 `UMask=0007`，保证 SQLite 和 WAL 可由相应进程访问。更换部署路径时同步修改每个单元的 `WorkingDirectory`、`ExecStart` 和 `ReadWritePaths`。
+
+### 升级持续事件处理
+
+更新源码后创建事件目录并启动新服务：
+
+```bash
+install -d -o xmonitorai -g xmonitorweb -m 2770 /srv/x-monitor/event_data
+cp deploy/systemd/x-monitor-events.service /etc/systemd/system/
+cp deploy/systemd/x-monitor-daily.service deploy/systemd/x-monitor-web.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now x-monitor-events.service
+systemctl restart x-monitor-daily.service x-monitor-web.service
+```
+
+左侧「实时 Top 10」进入 `/top`。首次运行整理今天和昨天的已有内容，进度随页面更新。事件服务读取清洗库并写入自己的 SQLite，网页和日报以 `mode=ro` 连接读取事件数据。SQLite WAL 模式的读取方也需要创建共享内存文件，因此共享目录保留组写入权限，并列入相应服务的 `ReadWritePaths`。日报如遇尚未完成的单帖处理，会等待后台结果。
 
 ## RSS 新闻订阅
 

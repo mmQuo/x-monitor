@@ -288,6 +288,15 @@ class DailyTests(unittest.TestCase):
         self.assertEqual(state["updated_at"], "2026-01-03T01:02:03+00:00")
         self.assertEqual((state["stage"], state["done"], state["total"]), ("整理推文（1/3）", 2, 8))
 
+    def legacy_job(self, job):
+        from clean_store import CleanStore
+        posts = worker.snapshot_posts(job["day"], self.base)["posts"]
+        CleanStore(self.base).prepare(posts)
+        snapshot = worker.snapshot_posts(job["day"], self.base)
+        snapshot.pop("pipeline_version")
+        self.store.snapshot(job["id"], snapshot, "legacy-test")
+        return self.store.get(job["id"])
+
     def test_long_post_tail_can_be_selected_and_linked_back_to_original(self):
         self.write_posts([self.post(1, "2026-01-02T01:00:00+00:00", "intro " * 1000 + "TAIL launch announced")])
         run_id = self.store.enqueue("2026-01-02")
@@ -305,7 +314,7 @@ class DailyTests(unittest.TestCase):
             item["timeline"] = [{"text": "Launch announced", "source_ids": item["source_ids"]}]
             return validate({"event": item})
         flow.call = call
-        flow.run(job, self.base)
+        flow.run(self.legacy_job(job), self.base)
         result = self.store.get(run_id)["result"]["events"][0]
         self.assertEqual(result["source_ids"], ["1"])
         self.assertEqual(result["timeline"][0]["source_ids"], ["1"])
@@ -339,7 +348,7 @@ class DailyTests(unittest.TestCase):
         class Client:
             post = staticmethod(fake_post)
         flow = worker.Workflow(self.store, run_id, Client())
-        flow.run(job, self.base)
+        flow.run(self.legacy_job(job), self.base)
         done = self.store.get(run_id)
         self.assertEqual(done["status"], "complete")
         self.assertEqual(done["calls"], 3)

@@ -1,0 +1,18 @@
+{% from '_icons.html' import icon %}
+<div class="top-processing" role="status">
+  <span>{{ events|length }} 个重点事件{% if processing.ready %} · {{ processing.ready }} 条内容已处理{% endif %}{% if processing.pending %} · {{ processing.pending }} 条待处理{% endif %}{% if processing.updating %} · {{ processing.updating }} 个事件更新中{% endif %}</span>
+  <span>{% if processing.delayed %}后台处理暂缓{% elif processing.error or processing.failed %}部分内容正在重试{% elif processing.pending or processing.updating %}持续整理中{% else %}已同步{% endif %}{% if processing.heartbeat %} · {{ processing.heartbeat|reporttime('%H:%M') }}{% endif %}</span>
+</div>
+{% if events %}<ol class="top-list">
+{% for event in events %}<li class="top-event" data-event-id="{{ event.id }}">
+  <span class="top-rank">{{ '%02d'|format(loop.index) }}</span><article>
+    <div class="top-meta"><span>{{ event.category }}</span>{% if event.status != '报道' %}<span class="top-evidence-status">{{ event.status }}</span>{% endif %}<span title="按影响范围、后果程度、新增信息和时效价值评估">影响 {{ event.importance }}/5</span><time title="最近实质进展的来源发布时间">{{ event.progress_at|reporttime }}</time></div>
+    <h3>{{ event.title }}</h3><p class="top-summary">{{ event.summary }}</p>
+    <div class="top-bottom"><span>{{ event.reason }}</span><span class="top-source-names">{% for source in event.sources %}<a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source|source_label }}</a>{% endfor %}</span></div>
+    <details class="top-details" data-details-id="{{ event.id }}"><summary><span class="expand-label">查看进展与来源</span><span class="collapse-label">收起</span>{{ icon('chevron', 12) }}</summary>
+      <ul class="top-timeline">{% for entry in event.timeline %}<li><time>{{ entry.published_at|reporttime }}</time><div>{{ entry.text }} {% for source in entry.sources %}<a href="{{ source.url }}" target="_blank" rel="noopener noreferrer" title="{{ source|source_label }}">[{{ source.number }}]</a>{% endfor %}</div></li>{% endfor %}</ul>
+      <div class="top-originals">{% for source in event.sources %}<div><div class="top-original-meta"><a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">[{{ source.number }}] {{ source|source_label }} {{ icon('external', 11) }}</a><time>{{ source.created_at|reporttime }}</time></div><p>{{ source.text }}</p></div>{% endfor %}</div>
+    </details>
+  </article>
+</li>{% endfor %}</ol>
+{% else %}<div class="top-empty">{% if processing.pending or processing.updating %}正在整理近期消息，已完成的事件会自动出现。{% else %}最近 24 小时暂无已整理的事件。{% endif %}</div>{% endif %}

@@ -428,7 +428,8 @@ details[open] > summary .collapse-label { display: inline; }
 
 /* Four workspace destinations share one compact row on phones. */
 @media (max-width: 760px) {
-  .main-nav { gap: 3px; }
+  .main-nav { gap: 3px; overflow-x: auto; scrollbar-width: thin; }
+  .main-nav .nav-item { flex: 1 0 auto; }
   .nav-item { gap: 5px; padding-inline: 5px; white-space: nowrap; }
   .nav-item > .icon:first-child { width: 14px; height: 14px; }
 }

@@ -24,6 +24,23 @@ def load_links(base):
     return {}
 
 
+def read_cleaned(base, posts):
+    """Read matching results without starting preprocessing or creating a database."""
+    path = Path(os.getenv("XMONITOR_CLEAN_DIR") or Path(base) / "clean_data") / "clean_posts.sqlite3"
+    if not path.exists():
+        return {}
+    results = {}
+    db = sqlite3.connect(path.as_uri() + "?mode=ro", uri=True, timeout=15)
+    try:
+        for post in posts:
+            row = db.execute("SELECT raw_hash,result FROM clean_posts WHERE post_id=?", (post["id"],)).fetchone()
+            if row and row[0] == cleaner.digest(cleaner.source_post(post)):
+                results[post["id"]] = json.loads(row[1])
+    finally:
+        db.close()
+    return results
+
+
 class CleanStore:
     def __init__(self, base=BASE, directory=None):
         self.directory = Path(directory or os.getenv("XMONITOR_CLEAN_DIR") or Path(base) / "clean_data")

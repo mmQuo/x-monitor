@@ -139,6 +139,7 @@ class CleaningTests(unittest.TestCase):
     def test_snapshot_freezes_cleaning_and_uses_original_text_for_verification(self):
         raw = "A &amp; B\n\n\nModel release https://t.co/Abc"
         self.write([self.post(text=raw)])
+        process_once(self.base, self.store, datetime(2026, 1, 2, 23, tzinfo=TZ))
         snapshot = daily_worker.snapshot_posts("2026-01-02", self.base)
         records, _ = daily_worker.prepare_posts(snapshot)
         evidence, _ = daily_worker.prepare_posts(snapshot, evidence=True)
@@ -153,6 +154,7 @@ class CleaningTests(unittest.TestCase):
     def test_uncertain_context_keeps_each_source_and_legacy_batches_stay_stable(self):
         posts = [self.post("1", text="I launched a model"), self.post("2", text="I launched a model")]
         self.write(posts)
+        process_once(self.base, self.store, datetime(2026, 1, 2, 23, tzinfo=TZ))
         snapshot = daily_worker.snapshot_posts("2026-01-02", self.base)
         self.assertEqual(len(daily_worker.prepare_posts(snapshot)[0]), 2)
         legacy = {"posts": posts}
@@ -163,12 +165,14 @@ class CleaningTests(unittest.TestCase):
         self.write([self.post("1", text="Release details", has_media=True),
                     self.post("2", text="Release details", has_media=True),
                     self.post("3", text="Release details", has_media=False, quoted_post_id="42")])
+        process_once(self.base, self.store, datetime(2026, 1, 2, 23, tzinfo=TZ))
         snapshot = daily_worker.snapshot_posts("2026-01-02", self.base)
         self.assertEqual(len(daily_worker.prepare_posts(snapshot)[0]), 3)
         self.assertEqual(self.store.stats()["posts"], 3)
 
     def test_confirmed_duplicates_keep_all_original_sources_in_snapshot_and_cache(self):
         self.write([self.post("1", has_media=False), self.post("2", has_media=False)])
+        process_once(self.base, self.store, datetime(2026, 1, 2, 23, tzinfo=TZ))
         snapshot = daily_worker.snapshot_posts("2026-01-02", self.base)
         records, duplicates = daily_worker.prepare_posts(snapshot)
         self.assertEqual((len(records), duplicates), (1, 1))

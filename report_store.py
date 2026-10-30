@@ -80,6 +80,9 @@ class ReportStore:
                 );
                 CREATE TABLE IF NOT EXISTS scheduled (day TEXT PRIMARY KEY);
             """)
+            columns = {row[1] for row in db.execute("PRAGMA table_info(runs)")}
+            if "retry_at" not in columns:
+                db.execute("ALTER TABLE runs ADD COLUMN retry_at TEXT NOT NULL DEFAULT ''")
 
     @contextmanager
     def connect(self):
@@ -125,7 +128,7 @@ class ReportStore:
     def claim(self):
         with self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
-            row = db.execute("SELECT id FROM runs WHERE status='queued' ORDER BY id LIMIT 1").fetchone()
+            row = db.execute("SELECT id FROM runs WHERE status='queued' AND retry_at<=? ORDER BY id LIMIT 1", (now_iso(),)).fetchone()
             if not row:
                 return None
             db.execute("UPDATE runs SET status='running',stage='读取当日推文',updated_at=? WHERE id=?", (now_iso(), row["id"]))
@@ -194,6 +197,11 @@ class ReportStore:
     def fail(self, run_id, message):
         with self.connect() as db:
             db.execute("UPDATE runs SET status='failed',stage='生成中断',error=?,updated_at=? WHERE id=?", (message[:240], now_iso(), run_id))
+
+    def defer(self, run_id, stage, done, total):
+        with self.connect() as db:
+            db.execute("UPDATE runs SET status='queued',stage=?,done=?,total=?,retry_at=?,updated_at=? WHERE id=?",
+                (stage, done, total, (datetime.now(timezone.utc) + timedelta(seconds=30)).isoformat(), now_iso(), run_id))
 
 
 def schedule_due(store, now=None):

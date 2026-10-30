@@ -28,6 +28,7 @@ ai_data/
 link_data/
 report_data/
 clean_data/
+event_data/
 rss_data/
 *.log
 
